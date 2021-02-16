@@ -2,3 +2,5 @@ spring:
   profiles:
     include:
       - database
+server:
+  port: { SERVER_PORT:8081 }
