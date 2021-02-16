@@ -9,12 +9,13 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import static java.lang.Boolean.TRUE;
 import static javax.persistence.GenerationType.AUTO;
 
 @Data
 @Entity
 @Builder
-@Table("small_city_PLACES")
+@Table(name = "small_city_PLACES")
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlaceModel {
@@ -30,4 +31,6 @@ public class PlaceModel {
   @Builder.Default
   private BigInteger adPriority = BigInteger.ZERO;
   private String cords;
+  @Builder.Default
+  private Boolean isActive = TRUE;
 }
