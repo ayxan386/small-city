@@ -2,6 +2,7 @@ package com.jsimplec.places.service.impl;
 
 import com.jsimplec.places.dto.places.PlaceRequestDTO;
 import com.jsimplec.places.dto.places.PlaceResponseDTO;
+import com.jsimplec.places.error.specific.PlaceAlreadyExists;
 import com.jsimplec.places.mapper.PlaceMapper;
 import com.jsimplec.places.model.PlaceModel;
 import com.jsimplec.places.repository.PlaceRepository;
@@ -40,7 +41,7 @@ public class PlaceServiceImpl implements PlaceService {
   @Override
   public PlaceResponseDTO addPlace(PlaceRequestDTO request) {
     if (placeRepository.existsByName(request.getName())) {
-      throw new IllegalArgumentException("Place with that name exists"); //TODO add custom exception
+      throw new PlaceAlreadyExists(request.getName());
     }
     PlaceModel toSave = placeMapper.requestToModel(request);
     PlaceModel saved = placeRepository.save(toSave);
