@@ -26,7 +26,7 @@ public class PlaceServiceImpl implements PlaceService {
 
   @Override
   public List<PlaceResponseDTO> getAll() {
-    Spliterator<PlaceModel> allPlacesSplit = placeRepository.findAll()
+    Spliterator<PlaceModel> allPlacesSplit = placeRepository.findAllByIsActiveTrue()
         .spliterator();
     return StreamSupport
         .stream(allPlacesSplit, false)
