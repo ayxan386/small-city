@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.stream.StreamSupport;
@@ -25,8 +26,10 @@ public class PlaceServiceImpl implements PlaceService {
   private final PlaceMapper placeMapper;
 
   @Override
+  @Transactional
   public List<PlaceResponseDTO> getAll() {
-    Spliterator<PlaceModel> allPlacesSplit = placeRepository.findAllByIsActiveTrue()
+    Spliterator<PlaceModel> allPlacesSplit = placeRepository
+        .findAllByIsActiveTrue()
         .spliterator();
     return StreamSupport
         .stream(allPlacesSplit, false)
