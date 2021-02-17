@@ -36,6 +36,9 @@ public class PlaceServiceImpl implements PlaceService {
 
   @Override
   public PlaceResponseDTO addPlace(PlaceRequestDTO request) {
+    if (placeRepository.existsByName(request.getName())) {
+      throw new IllegalArgumentException("Place with that name exists"); //TODO add custom exception
+    }
     PlaceModel toSave = placeMapper.requestToModel(request);
     PlaceModel saved = placeRepository.save(toSave);
     return placeMapper.modelToResponse(saved);
