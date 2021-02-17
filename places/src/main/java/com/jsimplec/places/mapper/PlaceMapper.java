@@ -14,5 +14,6 @@ public interface PlaceMapper {
   @Mapping(source = "id", ignore = true, target = "id")
   PlaceModel requestToModel(PlaceRequestDTO request);
 
+  @Mapping(source = "adPriority", target = "sortOrder")
   PlaceResponseDTO modelToResponse(PlaceModel model);
 }
