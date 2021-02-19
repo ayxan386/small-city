@@ -2,7 +2,9 @@ package com.jsimplec.places.service.impl;
 
 import com.jsimplec.places.dto.places.PlaceRequestDTO;
 import com.jsimplec.places.dto.places.PlaceResponseDTO;
+import com.jsimplec.places.error.specific.MissingValueError;
 import com.jsimplec.places.error.specific.PlaceAlreadyExists;
+import com.jsimplec.places.error.specific.PlaceNotFoundError;
 import com.jsimplec.places.mapper.PlaceMapper;
 import com.jsimplec.places.model.PlaceModel;
 import com.jsimplec.places.repository.PlaceRepository;
@@ -50,6 +52,15 @@ public class PlaceServiceImpl implements PlaceService {
 
   @Override
   public void updatePlace(PlaceRequestDTO request) {
-
+    placeRepository
+        .findById(request.getId().orElseThrow(MissingValueError::new))
+        .ifPresentOrElse(model -> {
+          model.setDescription(request.getDescription());
+          model.setName(request.getName());
+          model.setCords(request.getCords());
+          placeRepository.save(model);
+        }, () -> {
+          throw new PlaceNotFoundError();
+        });
   }
 }
