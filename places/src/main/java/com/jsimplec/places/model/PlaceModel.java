@@ -1,5 +1,6 @@
 package com.jsimplec.places.model;
 
+import com.jsimplec.places.listener.PlaceModelChangeListener;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +19,7 @@ import static javax.persistence.GenerationType.AUTO;
 @Table(name = "small_city_PLACES")
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(PlaceModelChangeListener.class)
 public class PlaceModel {
   @Id
   @GeneratedValue(strategy = AUTO)
