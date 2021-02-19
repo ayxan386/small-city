@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -28,6 +28,6 @@ public class EntityChangeLogModel {
   private String entityName;
   @Lob
   private String changedFields;
-  @CreatedDate
+  @CreationTimestamp
   private LocalDateTime date;
 }
