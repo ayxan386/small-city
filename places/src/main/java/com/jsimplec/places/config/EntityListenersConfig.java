@@ -2,9 +2,9 @@ package com.jsimplec.places.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsimplec.places.listener.PlaceModelChangeListener;
-import com.jsimplec.places.repository.ChangeLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 
 @Configuration
 public class EntityListenersConfig {
@@ -15,7 +15,7 @@ public class EntityListenersConfig {
   }
 
   @Autowired
-  public void injectLogRepository(ChangeLogRepository logRepository) {
-    PlaceModelChangeListener.logRepository = logRepository;
+  public void injectLogRepository(RedisTemplate<String, String> redisTemplate) {
+    PlaceModelChangeListener.redisTemplate = redisTemplate;
   }
 }

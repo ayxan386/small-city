@@ -6,15 +6,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsimplec.places.constants.ChangeType;
 import com.jsimplec.places.model.EntityChangeLogModel;
 import com.jsimplec.places.model.PlaceModel;
-import com.jsimplec.places.repository.ChangeLogRepository;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.PostPersist;
 import javax.persistence.PostUpdate;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,29 +30,33 @@ public class PlaceModelChangeListener {
   private final static TypeReference<Map<String, String>> mapReference = new TypeReference<>() {
   };
   public static ObjectMapper objectMapper;
-  public static ChangeLogRepository logRepository;
+  public static RedisTemplate<String, String> redisTemplate;
   public List<String> ignoredFields = emptyList();
-  private Map<String, String> prevFields;
+  private Map<String, String> prevFields = Collections.emptyMap();
 
-  @PreUpdate
   @PrePersist
+  @PreUpdate
   public void setupPreviousFields(PlaceModel placeModel) {
     setPreviousField(placeModel);
   }
 
-  @PostUpdate
   @PostPersist
-  public void postChange(PlaceModel place) {
+  public void postSave(PlaceModel place) {
     saveChanges(place, ChangeType.INSERT);
+  }
+
+  @PostUpdate
+  public void postUpdate(PlaceModel place) {
+    saveChanges(place, ChangeType.UPDATE);
   }
 
   private void saveChanges(PlaceModel place, ChangeType changeType) {
     Map<String, String> fields = getFields(place);
     removeIgnoredFields(fields);
-    deleteSameFields(fields);
+//    fields = deleteSameFields(fields);
     String convertedString = convertToJsonString(fields);
-    log.info("Converted string {}", convertedString);
 
+    log.info("changed fields {}", convertedString);
     EntityChangeLogModel changeLogModel = EntityChangeLogModel
         .builder()
         .changeType(changeType)
@@ -58,11 +64,23 @@ public class PlaceModelChangeListener {
         .changedFields(convertedString)
         .build();
 
-    logRepository.save(changeLogModel);
+    redisTemplate.convertAndSend("change_log", convertChangeLogToString(changeLogModel));
+    log.info("Message sent");
   }
 
-  private void deleteSameFields(Map<String, String> fields) {
-    prevFields.forEach((k, v) -> fields.remove(k));
+  private Map<String, String> deleteSameFields(Map<String, String> fields) {
+    HashMap<String, String> updatedFields = new HashMap<>();
+    for (String k : prevFields.keySet())
+      if (fields.containsKey(k)) {
+        String v = prevFields.get(k);
+        String value = fields.get(k);
+        if (!value.equals(v)) {
+          updatedFields.put(k, value);
+        }
+      } else {
+        updatedFields.put(k, prevFields.get(k));
+      }
+    return updatedFields;
   }
 
   private String convertToJsonString(Map<String, String> fields) {
@@ -71,7 +89,16 @@ public class PlaceModelChangeListener {
     } catch (JsonProcessingException e) {
       log.error("Error while converting to json {}", e.getMessage());
     }
-    return "{}";
+    return "{error}";
+  }
+
+  private String convertChangeLogToString(EntityChangeLogModel model) {
+    try {
+      return objectMapper.writeValueAsString(model);
+    } catch (JsonProcessingException e) {
+      log.error("Error while converting to json {}", e.getMessage());
+    }
+    return "{error}";
   }
 
   private void removeIgnoredFields(Map<String, String> fields) {

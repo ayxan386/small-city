@@ -1,5 +1,6 @@
 package com.jsimplec.places.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.jsimplec.places.listener.PlaceModelChangeListener;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +21,7 @@ import static javax.persistence.GenerationType.AUTO;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(PlaceModelChangeListener.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PlaceModel {
   @Id
   @GeneratedValue(strategy = AUTO)
