@@ -32,4 +32,11 @@ public class PlaceController {
     log.info("Place successfully added {}", response.getId());
     return GenericResponseDTO.success(response);
   }
+
+  @PutMapping("/update")
+  public void updatePlace(@RequestBody PlaceRequestDTO req) {
+    log.info("Updating place {} ....", req.getName());
+    placeService.updatePlace(req);
+    log.info("Place successfully updated");
+  }
 }
