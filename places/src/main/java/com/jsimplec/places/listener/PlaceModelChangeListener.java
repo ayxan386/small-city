@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.PostPersist;
 import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import java.util.List;
 import java.util.Map;
 
@@ -28,20 +30,24 @@ public class PlaceModelChangeListener {
   public static ObjectMapper objectMapper;
   public static ChangeLogRepository logRepository;
   public List<String> ignoredFields = emptyList();
+  private Map<String, String> prevFields;
 
-  @PostPersist
-  public void postInsert(PlaceModel place) {
-    saveChanges(place, ChangeType.INSERT);
+  @PreUpdate
+  @PrePersist
+  public void setupPreviousFields(PlaceModel placeModel) {
+    setPreviousField(placeModel);
   }
 
   @PostUpdate
-  public void postUpdate(PlaceModel place) {
-    saveChanges(place, ChangeType.UPDATE);
+  @PostPersist
+  public void postChange(PlaceModel place) {
+    saveChanges(place, ChangeType.INSERT);
   }
 
   private void saveChanges(PlaceModel place, ChangeType changeType) {
     Map<String, String> fields = getFields(place);
     removeIgnoredFields(fields);
+    deleteSameFields(fields);
     String convertedString = convertToJsonString(fields);
     log.info("Converted string {}", convertedString);
 
@@ -53,6 +59,10 @@ public class PlaceModelChangeListener {
         .build();
 
     logRepository.save(changeLogModel);
+  }
+
+  private void deleteSameFields(Map<String, String> fields) {
+    prevFields.forEach((k, v) -> fields.remove(k));
   }
 
   private String convertToJsonString(Map<String, String> fields) {
@@ -70,6 +80,12 @@ public class PlaceModelChangeListener {
 
   private Map<String, String> getFields(PlaceModel place) {
     return objectMapper.convertValue(place, mapReference);
+  }
+
+  private void setPreviousField(PlaceModel placeModel) {
+    Map<String, String> fields = getFields(placeModel);
+    removeIgnoredFields(fields);
+    prevFields = fields;
   }
 
 }
