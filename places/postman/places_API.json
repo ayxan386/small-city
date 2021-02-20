@@ -1,0 +1,239 @@
+{
+  "info": {
+    "_postman_id": "721fe53e-41a4-405f-badd-80690acd6176",
+    "name": "Places",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET all places",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Message is success\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.message).to.eql(\"success\");",
+              "});",
+              "",
+              "pm.test(\"Data is not null\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.data).is.not.null;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/places",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "places"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add new place",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Message is success\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.message).to.eql(\"success\");",
+              "});",
+              "",
+              "pm.test(\"Data is not null\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.data).is.not.null;",
+              "    pm.environment.set(\"place_id\", jsonData.data.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "pm.environment.set(\"randomDigit\", Math.floor(Math.random() * 100));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Test place{{randomDigit}}\",\n    \"description\": \"This is a very nice place\",\n    \"cords\": \"41,41\",\n    \"category\": \"Cafe\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/places",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "places"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update  place data",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"id\": {{place_id}},\n    \"description\": \"Very nice\",\n    \"name\": \"Test place9\",\n    \"cords\": \"412,41\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/places/update",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "places",
+            "update"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Review place",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Message is success\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.message).to.eql(\"success\");",
+              "});",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"id\": 1,\n    \"description\": \"Very nice\",\n    \"rating\":\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/places/review",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "places",
+            "review"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ALL logs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/logs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "logs"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081"
+    }
+  ]
+}
