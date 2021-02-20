@@ -11,11 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
 import javax.persistence.PostUpdate;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +30,8 @@ public class PlaceModelChangeListener {
   public static ObjectMapper objectMapper;
   public static RedisTemplate<String, String> redisTemplate;
   public List<String> ignoredFields = emptyList();
-  private Map<String, String> prevFields = Collections.emptyMap();
 
-  @PrePersist
-  @PreUpdate
+  @PostLoad
   public void setupPreviousFields(PlaceModel placeModel) {
     setPreviousField(placeModel);
   }
@@ -53,7 +49,7 @@ public class PlaceModelChangeListener {
   private void saveChanges(PlaceModel place, ChangeType changeType) {
     Map<String, String> fields = getFields(place);
     removeIgnoredFields(fields);
-//    fields = deleteSameFields(fields);
+    fields = deleteSameFields(fields, place.getPrevFields());
     String convertedString = convertToJsonString(fields);
 
     log.info("changed fields {}", convertedString);
@@ -68,18 +64,15 @@ public class PlaceModelChangeListener {
     log.info("Message sent");
   }
 
-  private Map<String, String> deleteSameFields(Map<String, String> fields) {
+  private Map<String, String> deleteSameFields(Map<String, String> fields, Map<String, String> prevFields) {
     HashMap<String, String> updatedFields = new HashMap<>();
-    for (String k : prevFields.keySet())
-      if (fields.containsKey(k)) {
-        String v = prevFields.get(k);
-        String value = fields.get(k);
-        if (!value.equals(v)) {
-          updatedFields.put(k, value);
-        }
-      } else {
-        updatedFields.put(k, prevFields.get(k));
+    for (String k : fields.keySet()) {
+      String v = prevFields.getOrDefault(k, "null");
+      String value = fields.get(k);
+      if (!value.equals(v)) {
+        updatedFields.put(k, String.format("%s ==> %s", v, value));
       }
+    }
     return updatedFields;
   }
 
@@ -112,7 +105,7 @@ public class PlaceModelChangeListener {
   private void setPreviousField(PlaceModel placeModel) {
     Map<String, String> fields = getFields(placeModel);
     removeIgnoredFields(fields);
-    prevFields = fields;
+    placeModel.setPrevFields(fields);
   }
 
 }
