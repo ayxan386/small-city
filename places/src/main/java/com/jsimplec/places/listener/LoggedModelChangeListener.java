@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsimplec.places.constants.ChangeType;
 import com.jsimplec.places.model.EntityChangeLogModel;
-import com.jsimplec.places.model.PlaceModel;
+import com.jsimplec.places.model.LoggedModel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,7 +23,7 @@ import static java.util.Collections.emptyList;
 @Slf4j
 @Component
 @NoArgsConstructor
-public class PlaceModelChangeListener {
+public class LoggedModelChangeListener {
 
   private final static TypeReference<Map<String, String>> mapReference = new TypeReference<>() {
   };
@@ -32,36 +32,39 @@ public class PlaceModelChangeListener {
   public List<String> ignoredFields = emptyList();
 
   @PostLoad
-  public void setupPreviousFields(PlaceModel placeModel) {
-    setPreviousField(placeModel);
+  public void setupPreviousFields(LoggedModel loggedModel) {
+    setPreviousField(loggedModel);
   }
 
   @PostPersist
-  public void postSave(PlaceModel place) {
-    saveChanges(place, ChangeType.INSERT);
+  public void postSave(LoggedModel loggedModel) {
+    saveChanges(loggedModel, ChangeType.INSERT);
   }
 
   @PostUpdate
-  public void postUpdate(PlaceModel place) {
-    saveChanges(place, ChangeType.UPDATE);
+  public void postUpdate(LoggedModel loggedModel) {
+    saveChanges(loggedModel, ChangeType.UPDATE);
   }
 
-  private void saveChanges(PlaceModel place, ChangeType changeType) {
-    Map<String, String> fields = getFields(place);
+  private void saveChanges(LoggedModel loggedModel, ChangeType changeType) {
+    Map<String, String> fields = getFields(loggedModel);
     removeIgnoredFields(fields);
-    fields = deleteSameFields(fields, place.getPrevFields());
-    String convertedString = convertToJsonString(fields);
 
-    log.info("changed fields {}", convertedString);
+    String id = fields.getOrDefault("id", "absent");
+
+    fields = deleteSameFields(fields, loggedModel.getPrevFields());
+    String convertedString = convertObjectToJsonString(fields);
+
     EntityChangeLogModel changeLogModel = EntityChangeLogModel
         .builder()
+        .entityId(id)
         .changeType(changeType)
-        .entityName(place.getClass().getSimpleName())
+        .entityName(loggedModel.getClass().getSimpleName())
         .changedFields(convertedString)
         .build();
 
-    redisTemplate.convertAndSend("change_log", convertChangeLogToString(changeLogModel));
-    log.info("Message sent");
+    redisTemplate.convertAndSend("change_log", convertObjectToJsonString(changeLogModel));
+    log.debug("Message sent");
   }
 
   private Map<String, String> deleteSameFields(Map<String, String> fields, Map<String, String> prevFields) {
@@ -76,18 +79,9 @@ public class PlaceModelChangeListener {
     return updatedFields;
   }
 
-  private String convertToJsonString(Map<String, String> fields) {
+  private String convertObjectToJsonString(Object obj) {
     try {
-      return objectMapper.writeValueAsString(fields);
-    } catch (JsonProcessingException e) {
-      log.error("Error while converting to json {}", e.getMessage());
-    }
-    return "{error}";
-  }
-
-  private String convertChangeLogToString(EntityChangeLogModel model) {
-    try {
-      return objectMapper.writeValueAsString(model);
+      return objectMapper.writeValueAsString(obj);
     } catch (JsonProcessingException e) {
       log.error("Error while converting to json {}", e.getMessage());
     }
@@ -98,14 +92,14 @@ public class PlaceModelChangeListener {
     ignoredFields.forEach(fields::remove);
   }
 
-  private Map<String, String> getFields(PlaceModel place) {
-    return objectMapper.convertValue(place, mapReference);
+  private Map<String, String> getFields(LoggedModel loggedModel) {
+    return objectMapper.convertValue(loggedModel, mapReference);
   }
 
-  private void setPreviousField(PlaceModel placeModel) {
-    Map<String, String> fields = getFields(placeModel);
+  private void setPreviousField(LoggedModel loggedModel) {
+    Map<String, String> fields = getFields(loggedModel);
     removeIgnoredFields(fields);
-    placeModel.setPrevFields(fields);
+    loggedModel.setPrevFields(fields);
   }
 
 }

@@ -1,20 +1,13 @@
 package com.jsimplec.places.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.jsimplec.places.listener.PlaceModelChangeListener;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Map;
 
 import static java.lang.Boolean.TRUE;
-import static java.util.Collections.emptyMap;
 import static javax.persistence.GenerationType.AUTO;
 
 @Data
@@ -23,9 +16,9 @@ import static javax.persistence.GenerationType.AUTO;
 @Table(name = "small_city_PLACES")
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(PlaceModelChangeListener.class)
+@EqualsAndHashCode(callSuper = false)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PlaceModel {
+public class PlaceModel extends LoggedModel {
   @Id
   @GeneratedValue(strategy = AUTO)
   private Long id;
@@ -40,8 +33,5 @@ public class PlaceModel {
   private String cords;
   @Builder.Default
   private Boolean isActive = TRUE;
-  @Transient
-  @JsonIgnore
-  @Builder.Default
-  private Map<String, String> prevFields = emptyMap();
+
 }

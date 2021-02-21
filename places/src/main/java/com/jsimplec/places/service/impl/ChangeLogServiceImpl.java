@@ -5,6 +5,7 @@ import com.jsimplec.places.mapper.ChangeLogMapper;
 import com.jsimplec.places.repository.ChangeLogRepository;
 import com.jsimplec.places.service.ChangeLogService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,9 +22,9 @@ public class ChangeLogServiceImpl implements ChangeLogService {
   @Override
   public List<LogResponseDTO> getAll() {
     return logRepository
-        .findAll()
+        .findAll(Sort.by(Sort.Direction.DESC, "date"))
         .stream()
-        .map(en -> changeLogMapper.mapToResponse(en))
+        .map(changeLogMapper::mapToResponse)
         .collect(toList());
   }
 }
