@@ -26,6 +26,7 @@ public class EntityChangeLogModel {
   @Enumerated(EnumType.STRING)
   private ChangeType changeType;
   private String entityName;
+  private String entityId;
   @Lob
   private String changedFields;
   @CreationTimestamp
