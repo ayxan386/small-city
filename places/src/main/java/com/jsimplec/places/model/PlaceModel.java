@@ -1,10 +1,7 @@
 package com.jsimplec.places.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -19,6 +16,7 @@ import static javax.persistence.GenerationType.AUTO;
 @Table(name = "small_city_PLACES")
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PlaceModel extends LoggedModel {
   @Id

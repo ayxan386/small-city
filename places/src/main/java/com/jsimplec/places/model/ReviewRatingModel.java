@@ -1,9 +1,6 @@
 package com.jsimplec.places.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.Entity;
@@ -21,7 +18,8 @@ import static javax.persistence.GenerationType.AUTO;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "review_rating")
-public class ReviewRatingModel {
+@EqualsAndHashCode(callSuper = false)
+public class ReviewRatingModel extends LoggedModel {
   @Id
   @GeneratedValue(strategy = AUTO)
   private Long id;
