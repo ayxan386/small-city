@@ -11,4 +11,6 @@ import java.math.BigDecimal;
 public interface ReviewRatingRepository extends JpaRepository<ReviewRatingModel, Long> {
   @Query("SELECT sum(r.rating) FROM ReviewRatingModel r where r.placeId=:placeId")
   BigDecimal sumAllByPlaceId(Long placeId);
+
+  long countAllByPlaceId(Long placeId);
 }
