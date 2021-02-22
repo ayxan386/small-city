@@ -2,7 +2,6 @@ package com.jsimplec.places.service.impl;
 
 import com.jsimplec.places.dto.reviews.ReviewRatingRequestDTO;
 import com.jsimplec.places.dto.reviews.ReviewRatingResponseDTO;
-import com.jsimplec.places.error.specific.NotImplementedError;
 import com.jsimplec.places.error.specific.PlaceNotFoundError;
 import com.jsimplec.places.mapper.ReviewRatingMapper;
 import com.jsimplec.places.model.ReviewRatingModel;
@@ -11,11 +10,13 @@ import com.jsimplec.places.repository.ReviewRatingRepository;
 import com.jsimplec.places.service.ReviewRatingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -28,7 +29,11 @@ public class ReviewRatingServiceImpl implements ReviewRatingService {
 
   @Override
   public List<ReviewRatingResponseDTO> getAllReviewsByPlaceId(Long placeId) {
-    throw new NotImplementedError();
+    ReviewRatingModel queryModel = ReviewRatingModel.builder().placeId(placeId).build();
+    return ratingRepository.findAll(Example.of(queryModel))
+        .stream()
+        .map(reviewRatingMapper::mapToResponse)
+        .collect(Collectors.toList());
   }
 
   @Override
