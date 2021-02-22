@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
@@ -71,8 +72,8 @@ public class LoggedModelChangeListener {
     HashMap<String, String> updatedFields = new HashMap<>();
     for (String k : fields.keySet()) {
       String v = prevFields.getOrDefault(k, "null");
-      String value = fields.get(k);
-      if (!value.equals(v)) {
+      String value = fields.getOrDefault(k, "null");
+      if (!ObjectUtils.nullSafeEquals(value, v)) {
         updatedFields.put(k, String.format("%s ==> %s", v, value));
       }
     }
