@@ -18,6 +18,7 @@ public class LogResponseDTO {
   private UUID id;
   private ChangeType changeType;
   private String entityName;
+  private String entityId;
   private Map<String, String> changedFields;
   private LocalDateTime date;
 }
