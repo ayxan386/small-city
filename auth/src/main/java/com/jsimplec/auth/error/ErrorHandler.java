@@ -12,13 +12,22 @@ public class ErrorHandler {
 
   @ExceptionHandler(IllegalStateException.class)
   public ResponseEntity<ErrorResponseDTO> handleIllegalState(IllegalStateException err) {
+    return handle(err.getMessage(), 501);
+  }
+
+  @ExceptionHandler(GenericError.class)
+  public ResponseEntity<ErrorResponseDTO> handleGenericError(GenericError err) {
+    return handle(err.getMessage(), err.getStatus());
+  }
+
+  private ResponseEntity<ErrorResponseDTO> handle(String message, int status) {
     return ResponseEntity
-        .status(501)
+        .status(status)
         .body(ErrorResponseDTO
             .builder()
             .date(LocalDateTime.now())
-            .message(err.getMessage())
-            .status(501)
+            .message(message)
+            .status(status)
             .build());
   }
 }
