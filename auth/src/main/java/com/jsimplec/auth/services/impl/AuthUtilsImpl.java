@@ -1,43 +1,78 @@
 package com.jsimplec.auth.services.impl;
 
-import com.jsimplec.auth.error.GenericError;
 import com.jsimplec.auth.services.AuthUtils;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
+import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 
 @Service
+@RequiredArgsConstructor
 public class AuthUtilsImpl implements AuthUtils {
 
-  public static final String HASHING_ALGORITHM = "SHA-256";
-  public static final String KEY_GENERATING_ALGO = "AES";
+  private static final long EXPIRATION_IN_MILLIS = 10800000;
+  private final PasswordEncoder passwordEncoder;
   @Value("${secrets.jwt.key}")
   private String secretKey;
 
   @Override
   public String createToken(String username) {
-    Key key = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), KEY_GENERATING_ALGO);
+    Key key = new SecretKeySpec(getSecretKey(), SignatureAlgorithm.HS256.getJcaName());
     return Jwts
         .builder()
         .setSubject(username)
-        .signWith(key)
+        .setIssuedAt(getCurrentDate())
+        .setExpiration(getExpirationDate())
+        .signWith(key, SignatureAlgorithm.HS256)
         .compact();
   }
 
   @Override
+  public void verifyToken(String token) {
+    Jwts
+        .parserBuilder()
+        .setSigningKey(getSecretKey())
+        .build()
+        .parse(token);
+  }
+
+  @Override
+  public String getUsername(String token) {
+    return Jwts
+        .parserBuilder()
+        .setSigningKey(getSecretKey())
+        .build()
+        .parseClaimsJws(token)
+        .getBody()
+        .getSubject();
+  }
+
+  @Override
+  public boolean checkPasswordMatching(String password, String encoded) {
+    return passwordEncoder.matches(password, encoded);
+  }
+
+  @Override
   public String hash(String password) {
-    try {
-      MessageDigest messageDigest = MessageDigest.getInstance(HASHING_ALGORITHM);
-      byte[] digested = messageDigest.digest(password.getBytes(StandardCharsets.UTF_8));
-      return new String(digested);
-    } catch (NoSuchAlgorithmException e) {
-      throw new GenericError(e.getMessage(), 500);
-    }
+    return passwordEncoder.encode(password);
+  }
+
+  private byte[] getSecretKey() {
+    return DatatypeConverter.parseBase64Binary(secretKey);
+  }
+
+  private Date getExpirationDate() {
+    return new Date(getCurrentDate().getTime() + EXPIRATION_IN_MILLIS);
+  }
+
+  private Date getCurrentDate() {
+    return new Date();
   }
 }
