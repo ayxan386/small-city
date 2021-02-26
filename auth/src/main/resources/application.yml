@@ -12,3 +12,7 @@ spring:
     url: ${POSTGRES_URL:jdbc:postgresql://172.17.0.1:5432/postgres}
     username: ${POSTGRES_USERNAME:postgres}
     password: ${POSTGRES_PASSWORD:pass}
+
+secrets:
+  jwt:
+    key: ${JWT_SECRET:hello_world}
