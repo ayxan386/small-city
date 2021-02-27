@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Data
@@ -12,6 +14,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VerificationRequestDTO {
+  @NotNull
+  @Email
   private String email;
+  @NotNull
   private UUID verificationId;
 }
