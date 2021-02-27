@@ -48,6 +48,7 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public JwtResponseDTO login(EmailLoginRequestDTO request) {
     UserModel userModel = getUserIfExists(request.getEmail());
+    checkUserStatus(userModel);
     checkPassword(userModel, request);
     return createJwtAndBuildResponseDTO(userModel.getUsername());
   }
@@ -69,6 +70,14 @@ public class AuthServiceImpl implements AuthService {
     userModel.setStatus(UserStatus.ACTIVE);
     userModel.setConfirmationId(null);
     userRepository.save(userModel);
+  }
+
+  private void checkUserStatus(UserModel userModel) {
+    if (ObjectUtils.nullSafeEquals(userModel.getStatus(), UserStatus.PENDING)) {
+      throw new GenericError("Email verification is pending", 400);
+    } else if (!ObjectUtils.nullSafeEquals(userModel.getStatus(), UserStatus.ACTIVE)) {
+      throw new GenericError("Email is either blocked or deleted", 403);
+    }
   }
 
   private boolean checkIfConfirmationIDsMatch(UUID verificationId, UUID confirmationId) {
