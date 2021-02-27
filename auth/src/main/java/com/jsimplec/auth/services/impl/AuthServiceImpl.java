@@ -1,5 +1,6 @@
 package com.jsimplec.auth.services.impl;
 
+import com.jsimplec.auth.constants.UserStatus;
 import com.jsimplec.auth.dto.login.EmailLoginRequestDTO;
 import com.jsimplec.auth.dto.register.JwtResponseDTO;
 import com.jsimplec.auth.dto.register.RegisterRequestDTO;
@@ -8,9 +9,12 @@ import com.jsimplec.auth.model.UserModel;
 import com.jsimplec.auth.repository.UserRepository;
 import com.jsimplec.auth.services.AuthService;
 import com.jsimplec.auth.services.AuthUtils;
+import com.jsimplec.auth.services.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -19,14 +23,24 @@ public class AuthServiceImpl implements AuthService {
 
   private final UserRepository userRepository;
   private final AuthUtils authUtils;
+  private final EmailService emailService;
 
   @Override
-  public JwtResponseDTO register(RegisterRequestDTO request) {
+  public String register(RegisterRequestDTO request) {
     checkIfUsernameOrEmailIsTaken(request);
 
-    saveNewUser(request);
+    UserModel userModel = saveNewUser(request);
 
-    return createJwtAndBuildResponseDTO(request.getUsername());
+    generateAndSetConfirmationId(userModel);
+    userRepository.save(userModel);
+    emailService.sendCode(userModel);
+
+    return "Confirmation message is sent to your email";
+  }
+
+  private void generateAndSetConfirmationId(UserModel userModel) {
+    UUID confirmationId = UUID.randomUUID();
+    userModel.setConfirmationId(confirmationId);
   }
 
   @Override
@@ -50,14 +64,15 @@ public class AuthServiceImpl implements AuthService {
         .build();
   }
 
-  private void saveNewUser(RegisterRequestDTO request) {
+  private UserModel saveNewUser(RegisterRequestDTO request) {
     UserModel userModel = UserModel
         .builder()
         .email(request.getEmail())
         .username(request.getPassword())
         .password(authUtils.hash(request.getPassword()))
+        .status(UserStatus.PENDING)
         .build();
-    userRepository.save(userModel);
+    return userRepository.save(userModel);
   }
 
   private void checkIfUsernameOrEmailIsTaken(RegisterRequestDTO request) {

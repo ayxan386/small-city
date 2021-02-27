@@ -6,7 +6,7 @@ import com.jsimplec.auth.dto.register.RegisterRequestDTO;
 
 public interface AuthService {
 
-  JwtResponseDTO register(RegisterRequestDTO request);
+  String register(RegisterRequestDTO request);
 
   JwtResponseDTO login(EmailLoginRequestDTO request);
 

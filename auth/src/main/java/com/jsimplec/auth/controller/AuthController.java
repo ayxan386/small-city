@@ -24,9 +24,9 @@ public class AuthController {
   private final AuthService authService;
 
   @PostMapping("/register")
-  public ResponseEntity<GenericResponse<JwtResponseDTO>> register(@Valid @RequestBody RegisterRequestDTO req) {
+  public ResponseEntity<GenericResponse<String>> register(@Valid @RequestBody RegisterRequestDTO req) {
     log.info("Trying to register new user {}", req.getUsername());
-    JwtResponseDTO response = authService.register(req);
+    String response = authService.register(req);
     log.info("Registering new user {} was successful", req.getUsername());
 
     return ResponseEntity.status(CREATED.value()).body(GenericResponse.success(response));
