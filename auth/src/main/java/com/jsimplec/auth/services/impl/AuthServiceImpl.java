@@ -1,7 +1,8 @@
 package com.jsimplec.auth.services.impl;
 
+import com.jsimplec.auth.dto.login.LoginRequestDTO;
+import com.jsimplec.auth.dto.register.JwtResponseDTO;
 import com.jsimplec.auth.dto.register.RegisterRequestDTO;
-import com.jsimplec.auth.dto.register.RegisterResponseDTO;
 import com.jsimplec.auth.error.GenericError;
 import com.jsimplec.auth.model.UserModel;
 import com.jsimplec.auth.repository.UserRepository;
@@ -20,17 +21,30 @@ public class AuthServiceImpl implements AuthService {
   private final AuthUtils authUtils;
 
   @Override
-  public RegisterResponseDTO register(RegisterRequestDTO request) {
+  public JwtResponseDTO register(RegisterRequestDTO request) {
     checkIfUsernameOrEmailIsTaken(request);
 
     saveNewUser(request);
 
-    return getJwtAndBuildResponseDTO(request.getUsername());
+    return createJwtAndBuildResponseDTO(request.getUsername());
   }
 
-  private RegisterResponseDTO getJwtAndBuildResponseDTO(String username) {
+  @Override
+  public JwtResponseDTO login(LoginRequestDTO request) {
+    UserModel userModel = getUserIfExists(request);
+    return createJwtAndBuildResponseDTO(userModel.getUsername());
+  }
+
+  private UserModel getUserIfExists(LoginRequestDTO request) {
+    return userRepository
+        .findByEmail(request.getEmail())
+        .filter(user -> authUtils.checkPasswordMatching(request.getPassword(), user.getPassword()))
+        .orElseThrow(() -> new GenericError("User not found/ Password is matching", 400));
+  }
+
+  private JwtResponseDTO createJwtAndBuildResponseDTO(String username) {
     String jwtToken = authUtils.createToken(username);
-    return RegisterResponseDTO
+    return JwtResponseDTO
         .builder()
         .token(jwtToken)
         .build();
