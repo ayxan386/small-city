@@ -1,6 +1,6 @@
 package com.jsimplec.auth.services.impl;
 
-import com.jsimplec.auth.dto.login.LoginRequestDTO;
+import com.jsimplec.auth.dto.login.EmailLoginRequestDTO;
 import com.jsimplec.auth.dto.register.JwtResponseDTO;
 import com.jsimplec.auth.dto.register.RegisterRequestDTO;
 import com.jsimplec.auth.error.GenericError;
@@ -30,12 +30,12 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public JwtResponseDTO login(LoginRequestDTO request) {
+  public JwtResponseDTO login(EmailLoginRequestDTO request) {
     UserModel userModel = getUserIfExists(request);
     return createJwtAndBuildResponseDTO(userModel.getUsername());
   }
 
-  private UserModel getUserIfExists(LoginRequestDTO request) {
+  private UserModel getUserIfExists(EmailLoginRequestDTO request) {
     return userRepository
         .findByEmail(request.getEmail())
         .filter(user -> authUtils.checkPasswordMatching(request.getPassword(), user.getPassword()))
