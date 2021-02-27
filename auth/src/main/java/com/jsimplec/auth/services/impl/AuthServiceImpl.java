@@ -39,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
     return userRepository
         .findByEmail(request.getEmail())
         .filter(user -> authUtils.checkPasswordMatching(request.getPassword(), user.getPassword()))
-        .orElseThrow(() -> new GenericError("User not found/ Password is matching", 400));
+        .orElseThrow(() -> new GenericError("User not found / Passwords don't match", 400));
   }
 
   private JwtResponseDTO createJwtAndBuildResponseDTO(String username) {
