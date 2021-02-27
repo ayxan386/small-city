@@ -4,6 +4,7 @@ import com.jsimplec.auth.constants.UserStatus;
 import com.jsimplec.auth.dto.login.EmailLoginRequestDTO;
 import com.jsimplec.auth.dto.register.JwtResponseDTO;
 import com.jsimplec.auth.dto.register.RegisterRequestDTO;
+import com.jsimplec.auth.dto.register.VerificationRequestDTO;
 import com.jsimplec.auth.error.GenericError;
 import com.jsimplec.auth.model.UserModel;
 import com.jsimplec.auth.repository.UserRepository;
@@ -13,6 +14,7 @@ import com.jsimplec.auth.services.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.UUID;
 
@@ -31,11 +33,46 @@ public class AuthServiceImpl implements AuthService {
 
     UserModel userModel = saveNewUser(request);
 
-    generateAndSetConfirmationId(userModel);
-    userRepository.save(userModel);
-    emailService.sendCode(userModel);
+    startEmailVerification(userModel);
 
     return "Confirmation message is sent to your email";
+  }
+
+  public void startEmailVerification(UserModel userModel) {
+    generateAndSetConfirmationId(userModel);
+    userModel.setStatus(UserStatus.PENDING);
+    userRepository.save(userModel);
+    emailService.sendCode(userModel);
+  }
+
+  @Override
+  public JwtResponseDTO login(EmailLoginRequestDTO request) {
+    UserModel userModel = getUserIfExists(request.getEmail());
+    checkPassword(userModel, request);
+    return createJwtAndBuildResponseDTO(userModel.getUsername());
+  }
+
+  @Override
+  public void verifyUser(VerificationRequestDTO request) {
+    UserModel userModel = getUserIfExists(request.getEmail());
+    if (checkIfConfirmationIDsMatch(request.getVerificationId(), userModel.getConfirmationId())) {
+      activateUser(userModel);
+    } else {
+      userModel.setConfirmationId(null);
+      userModel.setStatus(UserStatus.FROZEN);
+      userRepository.save(userModel);
+      throw new GenericError("Wrong verification id", 403);
+    }
+  }
+
+  private void activateUser(UserModel userModel) {
+    userModel.setStatus(UserStatus.ACTIVE);
+    userModel.setConfirmationId(null);
+    userRepository.save(userModel);
+  }
+
+  private boolean checkIfConfirmationIDsMatch(UUID verificationId, UUID confirmationId) {
+    return ObjectUtils.nullSafeEquals(verificationId, confirmationId);
   }
 
   private void generateAndSetConfirmationId(UserModel userModel) {
@@ -43,17 +80,17 @@ public class AuthServiceImpl implements AuthService {
     userModel.setConfirmationId(confirmationId);
   }
 
-  @Override
-  public JwtResponseDTO login(EmailLoginRequestDTO request) {
-    UserModel userModel = getUserIfExists(request);
-    return createJwtAndBuildResponseDTO(userModel.getUsername());
+  private UserModel getUserIfExists(String email) {
+    return userRepository
+        .findByEmail(email)
+        .orElseThrow(() -> new GenericError("User not found", 404));
+
   }
 
-  private UserModel getUserIfExists(EmailLoginRequestDTO request) {
-    return userRepository
-        .findByEmail(request.getEmail())
-        .filter(user -> authUtils.checkPasswordMatching(request.getPassword(), user.getPassword()))
-        .orElseThrow(() -> new GenericError("User not found / Passwords don't match", 400));
+  private void checkPassword(UserModel userModel, EmailLoginRequestDTO req) {
+    if (!authUtils.checkPasswordMatching(req.getPassword(), userModel.getPassword())) {
+      throw new GenericError("Passwords don't match", 403);
+    }
   }
 
   private JwtResponseDTO createJwtAndBuildResponseDTO(String username) {

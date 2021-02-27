@@ -4,6 +4,7 @@ import com.jsimplec.auth.dto.GenericResponse;
 import com.jsimplec.auth.dto.login.EmailLoginRequestDTO;
 import com.jsimplec.auth.dto.register.JwtResponseDTO;
 import com.jsimplec.auth.dto.register.RegisterRequestDTO;
+import com.jsimplec.auth.dto.register.VerificationRequestDTO;
 import com.jsimplec.auth.services.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,5 +40,13 @@ public class AuthController {
     log.info("Registering new user {} was successful", req.getEmail());
 
     return ResponseEntity.status(OK.value()).body(GenericResponse.success(response));
+  }
+
+  @PostMapping("/verify")
+  public ResponseEntity<GenericResponse<String>> verify(@RequestBody VerificationRequestDTO req) {
+    log.info("Trying to verify email");
+    authService.verifyUser(req);
+    log.info("Successfully to verified email");
+    return ResponseEntity.ok(GenericResponse.success("verified"));
   }
 }

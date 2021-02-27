@@ -3,6 +3,7 @@ package com.jsimplec.auth.services;
 import com.jsimplec.auth.dto.login.EmailLoginRequestDTO;
 import com.jsimplec.auth.dto.register.JwtResponseDTO;
 import com.jsimplec.auth.dto.register.RegisterRequestDTO;
+import com.jsimplec.auth.dto.register.VerificationRequestDTO;
 
 public interface AuthService {
 
@@ -10,4 +11,5 @@ public interface AuthService {
 
   JwtResponseDTO login(EmailLoginRequestDTO request);
 
+  void verifyUser(VerificationRequestDTO request);
 }
