@@ -7,7 +7,9 @@ import com.jsimplec.auth.dto.register.RegisterRequestDTO;
 import com.jsimplec.auth.dto.register.VerificationRequestDTO;
 import com.jsimplec.auth.error.GenericError;
 import com.jsimplec.auth.model.UserModel;
+import com.jsimplec.auth.model.VerificationModel;
 import com.jsimplec.auth.repository.UserRepository;
+import com.jsimplec.auth.repository.VerificationRepository;
 import com.jsimplec.auth.services.AuthService;
 import com.jsimplec.auth.services.AuthUtils;
 import com.jsimplec.auth.services.EmailService;
@@ -24,6 +26,7 @@ import java.util.UUID;
 public class AuthServiceImpl implements AuthService {
 
   private final UserRepository userRepository;
+  private final VerificationRepository verificationRepository;
   private final AuthUtils authUtils;
   private final EmailService emailService;
 
@@ -56,7 +59,8 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public void verifyUser(VerificationRequestDTO request) {
     UserModel userModel = getUserIfExists(request.getEmail());
-    if (checkIfConfirmationIDsMatch(request.getVerificationId(), userModel.getConfirmationId())) {
+    VerificationModel verificationModel = getVerificationIdIfExists(request.getVerificationId());
+    if (checkUserIDs(userModel, verificationModel)) {
       activateUser(userModel);
     } else {
       userModel.setConfirmationId(null);
@@ -64,6 +68,16 @@ public class AuthServiceImpl implements AuthService {
       userRepository.save(userModel);
       throw new GenericError("Wrong verification id", 403);
     }
+  }
+
+  private boolean checkUserIDs(UserModel userModel, VerificationModel verificationModel) {
+    return ObjectUtils.nullSafeEquals(userModel.getId(), verificationModel.getUserId());
+  }
+
+  private VerificationModel getVerificationIdIfExists(UUID verificationId) {
+    return verificationRepository
+        .findByVerificationId(verificationId)
+        .orElseThrow(() -> new GenericError("No such ID exists", 404));
   }
 
   private void activateUser(UserModel userModel) {
@@ -80,10 +94,6 @@ public class AuthServiceImpl implements AuthService {
     }
   }
 
-  private boolean checkIfConfirmationIDsMatch(UUID verificationId, UUID confirmationId) {
-    return ObjectUtils.nullSafeEquals(verificationId, confirmationId);
-  }
-
   private void generateAndSetConfirmationId(UserModel userModel) {
     UUID confirmationId = UUID.randomUUID();
     userModel.setConfirmationId(confirmationId);
@@ -93,7 +103,6 @@ public class AuthServiceImpl implements AuthService {
     return userRepository
         .findByEmail(email)
         .orElseThrow(() -> new GenericError("User not found", 404));
-
   }
 
   private void checkPassword(UserModel userModel, EmailLoginRequestDTO req) {
