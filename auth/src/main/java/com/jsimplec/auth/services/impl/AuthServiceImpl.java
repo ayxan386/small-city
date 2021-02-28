@@ -63,7 +63,7 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public void verifyUser(VerificationRequestDTO request) {
     UserModel userModel = getUserIfExists(request.getEmail());
-    VerificationModel verificationModel = getActiveVerificationIdIfExists(request.getVerificationId());
+    VerificationModel verificationModel = getActiveVerificationIdIfExists(userModel.getId());
     if (checkUserIDs(userModel, verificationModel)) {
       activateUser(userModel);
       disableVerification(verificationModel);
@@ -97,10 +97,10 @@ public class AuthServiceImpl implements AuthService {
     return ObjectUtils.nullSafeEquals(userModel.getId(), verificationModel.getUserId());
   }
 
-  private VerificationModel getActiveVerificationIdIfExists(UUID verificationId) {
+  private VerificationModel getActiveVerificationIdIfExists(UUID userId) {
     return verificationRepository
-        .findByVerificationIdAndIsActiveTrue(verificationId)
-        .orElseThrow(() -> new GenericError("No such ID exists", 404));
+        .findByUserIdAndIsActiveTrue(userId)
+        .orElseThrow(() -> new GenericError("No such user found", 404));
   }
 
   private void activateUser(UserModel userModel) {

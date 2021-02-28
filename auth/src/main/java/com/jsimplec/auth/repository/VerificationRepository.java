@@ -9,5 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface VerificationRepository extends CrudRepository<VerificationModel, UUID> {
-  Optional<VerificationModel> findByVerificationIdAndIsActiveTrue(UUID verificationId);
+  Optional<VerificationModel> findByUserIdAndIsActiveTrue(UUID verificationId);
 }
