@@ -29,7 +29,6 @@ public class UserModel {
   private String password;
   @Enumerated(EnumType.STRING)
   private UserStatus status;
-  private UUID confirmationId;
   @CreationTimestamp
   private LocalDateTime createDate;
   @UpdateTimestamp

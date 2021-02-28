@@ -25,6 +25,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
+  private static final int MAX_ALLOWED_NUMBER_OF_ATTEMPTS = 3;
   private final UserRepository userRepository;
   private final VerificationRepository verificationRepository;
   private final AuthUtils authUtils;
@@ -59,22 +60,41 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public void verifyUser(VerificationRequestDTO request) {
     UserModel userModel = getUserIfExists(request.getEmail());
-    VerificationModel verificationModel = getVerificationIdIfExists(request.getVerificationId());
+    VerificationModel verificationModel = getActiveVerificationIdIfExists(request.getVerificationId());
     if (checkUserIDs(userModel, verificationModel)) {
       activateUser(userModel);
+      disableVerification(verificationModel);
     } else {
-      userModel.setConfirmationId(null);
-      userModel.setStatus(UserStatus.FROZEN);
-      userRepository.save(userModel);
-      throw new GenericError("Wrong verification id", 403);
+      addAttemptToVerificationAndThrowError(verificationModel);
     }
+  }
+
+  private void addAttemptToVerificationAndThrowError(VerificationModel verificationModel) {
+    int numberOfAttempts = verificationModel.getNumberOfAttempts() + 1;
+    verificationModel.setNumberOfAttempts(numberOfAttempts);
+
+    int remainingRetries = MAX_ALLOWED_NUMBER_OF_ATTEMPTS - numberOfAttempts;
+
+    GenericError err = new GenericError(String.format("Attempt failed. Tries left %d", remainingRetries), 400);
+
+    if (numberOfAttempts > MAX_ALLOWED_NUMBER_OF_ATTEMPTS) {
+      verificationModel.setActive(false);
+      err = new GenericError("Max number of attempt reached", 409);
+    }
+    verificationRepository.save(verificationModel);
+    throw err;
+  }
+
+  private void disableVerification(VerificationModel verificationModel) {
+    verificationModel.setActive(false);
+    verificationRepository.save(verificationModel);
   }
 
   private boolean checkUserIDs(UserModel userModel, VerificationModel verificationModel) {
     return ObjectUtils.nullSafeEquals(userModel.getId(), verificationModel.getUserId());
   }
 
-  private VerificationModel getVerificationIdIfExists(UUID verificationId) {
+  private VerificationModel getActiveVerificationIdIfExists(UUID verificationId) {
     return verificationRepository
         .findByVerificationId(verificationId)
         .orElseThrow(() -> new GenericError("No such ID exists", 404));
@@ -82,21 +102,27 @@ public class AuthServiceImpl implements AuthService {
 
   private void activateUser(UserModel userModel) {
     userModel.setStatus(UserStatus.ACTIVE);
-    userModel.setConfirmationId(null);
     userRepository.save(userModel);
   }
 
   private void checkUserStatus(UserModel userModel) {
     if (ObjectUtils.nullSafeEquals(userModel.getStatus(), UserStatus.PENDING)) {
-      throw new GenericError("Email verification is pending", 400);
+      throw new GenericError("Account verification is pending", 400);
     } else if (!ObjectUtils.nullSafeEquals(userModel.getStatus(), UserStatus.ACTIVE)) {
-      throw new GenericError("Email is either blocked or deleted", 403);
+      throw new GenericError("Account is either blocked or deleted", 403);
     }
   }
 
   private void generateAndSetConfirmationId(UserModel userModel) {
     UUID confirmationId = UUID.randomUUID();
-    userModel.setConfirmationId(confirmationId);
+    VerificationModel verificationModel = VerificationModel
+        .builder()
+        .verificationId(confirmationId)
+        .isActive(true)
+        .userId(userModel.getId())
+        .numberOfAttempts(0)
+        .build();
+    verificationRepository.save(verificationModel);
   }
 
   private UserModel getUserIfExists(String email) {

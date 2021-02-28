@@ -27,6 +27,9 @@ public class VerificationModel {
   private UUID id;
   private UUID verificationId;
   private UUID userId;
+  private boolean isActive;
+  @Builder.Default
+  private int numberOfAttempts = 0;
   @CreationTimestamp
   private LocalDateTime createdDate;
 }
