@@ -80,7 +80,7 @@ public class AuthServiceImpl implements AuthService {
 
     GenericError err = new GenericError(String.format("Attempt failed. Tries left %d", remainingRetries), 400);
 
-    if (numberOfAttempts > MAX_ALLOWED_NUMBER_OF_ATTEMPTS) {
+    if (numberOfAttempts >= MAX_ALLOWED_NUMBER_OF_ATTEMPTS) {
       verificationModel.setActive(false);
       err = new GenericError("Max number of attempt reached", 409);
     }
@@ -93,8 +93,8 @@ public class AuthServiceImpl implements AuthService {
     verificationRepository.save(verificationModel);
   }
 
-  private boolean checkVerificationCodes(String userModel, String verificationModel) {
-    return ObjectUtils.nullSafeEquals(userModel, verificationModel);
+  private boolean checkVerificationCodes(String requestCode, String actualCode) {
+    return ObjectUtils.nullSafeEquals(requestCode, actualCode);
   }
 
   private VerificationModel getActiveVerificationIdIfExists(UUID userId) {
