@@ -64,7 +64,7 @@ public class AuthServiceImpl implements AuthService {
   public void verifyUser(VerificationRequestDTO request) {
     UserModel userModel = getUserIfExists(request.getEmail());
     VerificationModel verificationModel = getActiveVerificationIdIfExists(userModel.getId());
-    if (checkUserIDs(userModel, verificationModel)) {
+    if (checkVerificationCodes(request.getVerificationId(), verificationModel.getVerificationId())) {
       activateUser(userModel);
       disableVerification(verificationModel);
     } else {
@@ -93,8 +93,8 @@ public class AuthServiceImpl implements AuthService {
     verificationRepository.save(verificationModel);
   }
 
-  private boolean checkUserIDs(UserModel userModel, VerificationModel verificationModel) {
-    return ObjectUtils.nullSafeEquals(userModel.getId(), verificationModel.getUserId());
+  private boolean checkVerificationCodes(String userModel, String verificationModel) {
+    return ObjectUtils.nullSafeEquals(userModel, verificationModel);
   }
 
   private VerificationModel getActiveVerificationIdIfExists(UUID userId) {

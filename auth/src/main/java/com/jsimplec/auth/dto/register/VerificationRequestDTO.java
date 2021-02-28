@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
-import java.util.UUID;
+import javax.validation.constraints.Size;
 
 @Data
 @Builder
@@ -18,5 +18,6 @@ public class VerificationRequestDTO {
   @Email
   private String email;
   @NotNull
-  private UUID verificationId;
+  @Size(min = 7, max = 7)
+  private String verificationId;
 }
