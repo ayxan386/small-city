@@ -96,7 +96,7 @@ public class AuthServiceImpl implements AuthService {
 
   private VerificationModel getActiveVerificationIdIfExists(UUID verificationId) {
     return verificationRepository
-        .findByVerificationId(verificationId)
+        .findByVerificationIdAndIsActiveTrue(verificationId)
         .orElseThrow(() -> new GenericError("No such ID exists", 404));
   }
 
