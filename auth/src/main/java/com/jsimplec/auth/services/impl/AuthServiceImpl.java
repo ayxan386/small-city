@@ -43,10 +43,10 @@ public class AuthServiceImpl implements AuthService {
   }
 
   public void startEmailVerification(UserModel userModel) {
-    generateAndSetConfirmationId(userModel);
+    UUID confirmationId = generateAndReturnConfirmationId(userModel);
     userModel.setStatus(UserStatus.PENDING);
     userRepository.save(userModel);
-    emailService.sendCode(userModel);
+    emailService.sendCode(userModel, confirmationId);
   }
 
   @Override
@@ -113,7 +113,7 @@ public class AuthServiceImpl implements AuthService {
     }
   }
 
-  private void generateAndSetConfirmationId(UserModel userModel) {
+  private UUID generateAndReturnConfirmationId(UserModel userModel) {
     UUID confirmationId = UUID.randomUUID();
     VerificationModel verificationModel = VerificationModel
         .builder()
@@ -123,6 +123,7 @@ public class AuthServiceImpl implements AuthService {
         .numberOfAttempts(0)
         .build();
     verificationRepository.save(verificationModel);
+    return confirmationId;
   }
 
   private UserModel getUserIfExists(String email) {
