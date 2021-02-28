@@ -1,14 +1,15 @@
 package com.jsimplec.auth.model;
 
-import com.jsimplec.auth.constants.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -19,18 +20,16 @@ import static javax.persistence.GenerationType.AUTO;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "small_city_user")
-public class UserModel {
+@Table(name = "small_city_verification")
+public class VerificationModel {
   @Id
   @GeneratedValue(strategy = AUTO)
   private UUID id;
-  private String username;
-  private String email;
-  private String password;
-  @Enumerated(EnumType.STRING)
-  private UserStatus status;
+  private String verificationId;
+  private UUID userId;
+  private boolean isActive;
+  @Builder.Default
+  private int numberOfAttempts = 0;
   @CreationTimestamp
-  private LocalDateTime createDate;
-  @UpdateTimestamp
-  private LocalDateTime updateDate;
+  private LocalDateTime createdDate;
 }

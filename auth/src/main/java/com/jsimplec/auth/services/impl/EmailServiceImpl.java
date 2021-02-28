@@ -16,12 +16,12 @@ public class EmailServiceImpl implements EmailService {
 
   @Async
   @Override
-  public void sendCode(UserModel userModel) {
+  public void sendCode(UserModel userModel, String confirmationId) {
     SimpleMailMessage message = new SimpleMailMessage();
     message.setFrom("noreply@jsimplec.com");
     message.setTo(userModel.getEmail());
     message.setSubject("Email confirmation");
-    message.setText("Verification code: " + userModel.getConfirmationId().toString());
+    message.setText("Verification code: " + confirmationId);
     mailSender.send(message);
   }
 }
