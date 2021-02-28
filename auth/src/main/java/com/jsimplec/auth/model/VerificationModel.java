@@ -25,7 +25,7 @@ public class VerificationModel {
   @Id
   @GeneratedValue(strategy = AUTO)
   private UUID id;
-  private UUID verificationId;
+  private String verificationId;
   private UUID userId;
   private boolean isActive;
   @Builder.Default

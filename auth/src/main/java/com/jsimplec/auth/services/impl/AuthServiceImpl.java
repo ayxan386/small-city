@@ -1,5 +1,6 @@
 package com.jsimplec.auth.services.impl;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.jsimplec.auth.constants.UserStatus;
 import com.jsimplec.auth.dto.login.EmailLoginRequestDTO;
 import com.jsimplec.auth.dto.register.JwtResponseDTO;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.util.UUID;
+
+import static com.aventrix.jnanoid.jnanoid.NanoIdUtils.DEFAULT_NUMBER_GENERATOR;
 
 @Slf4j
 @Service
@@ -43,7 +46,7 @@ public class AuthServiceImpl implements AuthService {
   }
 
   public void startEmailVerification(UserModel userModel) {
-    UUID confirmationId = generateAndReturnConfirmationId(userModel);
+    String confirmationId = generateAndReturnConfirmationId(userModel);
     userModel.setStatus(UserStatus.PENDING);
     userRepository.save(userModel);
     emailService.sendCode(userModel, confirmationId);
@@ -113,8 +116,11 @@ public class AuthServiceImpl implements AuthService {
     }
   }
 
-  private UUID generateAndReturnConfirmationId(UserModel userModel) {
-    UUID confirmationId = UUID.randomUUID();
+  private String generateAndReturnConfirmationId(UserModel userModel) {
+    String confirmationId = NanoIdUtils.randomNanoId(
+        DEFAULT_NUMBER_GENERATOR,
+        "1234567890".toCharArray(),
+        7);
     VerificationModel verificationModel = VerificationModel
         .builder()
         .verificationId(confirmationId)
