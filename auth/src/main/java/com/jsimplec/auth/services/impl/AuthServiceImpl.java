@@ -64,7 +64,8 @@ public class AuthServiceImpl implements AuthService {
     }
   }
 
-  private UserModel getUserIfExists(String email) {
+  @Override
+  public UserModel getUserIfExists(String email) {
     return userRepository
         .findByEmail(email)
         .orElseThrow(() -> new GenericError("User not found", 404));
