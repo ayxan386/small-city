@@ -28,6 +28,7 @@ public class OtpServiceImpl implements OtpService {
 
   @Override
   public void sendOtp(UserModel user) {
+    disableAllUserOtps(user);
     String confirmationId = generateAndReturnConfirmationId(user);
     emailService.sendCode(user, confirmationId);
   }
@@ -61,6 +62,10 @@ public class OtpServiceImpl implements OtpService {
   private void disableVerification(VerificationModel verificationModel) {
     verificationModel.setActive(false);
     verificationRepository.save(verificationModel);
+  }
+
+  private void disableAllUserOtps(UserModel user) {
+    verificationRepository.updateAllOtpByUserId(user.getId());
   }
 
   private boolean checkVerificationCodes(String requestCode, String actualCode) {
