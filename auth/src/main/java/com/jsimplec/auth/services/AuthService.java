@@ -4,6 +4,7 @@ import com.jsimplec.auth.dto.login.EmailLoginRequestDTO;
 import com.jsimplec.auth.dto.register.JwtResponseDTO;
 import com.jsimplec.auth.dto.register.RegisterRequestDTO;
 import com.jsimplec.auth.dto.register.VerificationRequestDTO;
+import com.jsimplec.auth.model.UserModel;
 
 public interface AuthService {
 
@@ -12,4 +13,6 @@ public interface AuthService {
   JwtResponseDTO login(EmailLoginRequestDTO request);
 
   void verifyUser(VerificationRequestDTO request);
+
+  UserModel getUserIfExists(String email);
 }
