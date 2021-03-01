@@ -75,7 +75,7 @@ public class OtpServiceImpl implements OtpService {
   private VerificationModel getActiveVerificationIdIfExists(UUID userId) {
     return verificationRepository
         .findByUserIdAndIsActiveTrue(userId)
-        .orElseThrow(() -> new GenericError("No such user found", 404));
+        .orElseThrow(() -> new GenericError("No active OTPs found for that user", 404));
   }
 
   private String generateAndReturnConfirmationId(UserModel userModel) {

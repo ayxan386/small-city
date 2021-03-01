@@ -2,6 +2,7 @@ package com.jsimplec.auth.controller;
 
 import com.jsimplec.auth.dto.GenericResponse;
 import com.jsimplec.auth.dto.otp.SendOtpRequestDTO;
+import com.jsimplec.auth.dto.register.VerificationRequestDTO;
 import com.jsimplec.auth.model.UserModel;
 import com.jsimplec.auth.services.AuthService;
 import com.jsimplec.auth.services.OtpService;
@@ -30,5 +31,15 @@ public class OtpController {
     otpService.sendOtp(user);
     log.info("Sending otp to {} was successful", req.getEmail());
     return ResponseEntity.ok(GenericResponse.success("Email was sent"));
+  }
+
+  @PostMapping("/verify")
+  public ResponseEntity<GenericResponse<String>> sendOtp(@RequestBody VerificationRequestDTO req) {
+    log.info("Looking for user with email {}", req.getEmail());
+    UserModel user = authService.getUserIfExists(req.getEmail());
+    log.info("Verifying otp for {}...", req.getEmail());
+    otpService.verify(req, user);
+    log.info("Verifying otp for {} was successful", req.getEmail());
+    return ResponseEntity.ok(GenericResponse.success("OTP was correct"));
   }
 }
