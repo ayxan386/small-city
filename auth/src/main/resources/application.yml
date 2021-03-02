@@ -6,16 +6,8 @@ server:
 spring:
   application:
     name: Auth
-  jpa:
-    open-in-view: false
-    hibernate:
-      ddl-auto: update
-  datasource:
-    url: ${POSTGRES_URL:jdbc:postgresql://172.17.0.1:5432/postgres}
-    username: ${POSTGRES_USERNAME:postgres}
-    password: ${POSTGRES_PASSWORD:pass}
   profiles:
-    include: email
+    include: email, db, redis
 
 secrets:
   jwt:
