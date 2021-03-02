@@ -1,12 +1,14 @@
 package com.jsimplec.auth.error;
 
 import com.jsimplec.auth.dto.ErrorResponseDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @ControllerAdvice
 public class ErrorHandler {
 
@@ -21,6 +23,7 @@ public class ErrorHandler {
   }
 
   private ResponseEntity<ErrorResponseDTO> handle(String message, int status) {
+    log.error("Error with status {}: message {}", status, message);
     return ResponseEntity
         .status(status)
         .body(ErrorResponseDTO
