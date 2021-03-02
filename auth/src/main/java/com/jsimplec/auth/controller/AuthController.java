@@ -35,9 +35,9 @@ public class AuthController {
 
   @PostMapping("/login/email")
   public ResponseEntity<GenericResponse<JwtResponseDTO>> login(@Valid @RequestBody EmailLoginRequestDTO req) {
-    log.info("Trying to register new user {}", req.getEmail());
+    log.info("Trying to login user {}", req.getEmail());
     JwtResponseDTO response = authService.login(req);
-    log.info("Registering new user {} was successful", req.getEmail());
+    log.info("Signing in user {} was successful", req.getEmail());
 
     return ResponseEntity.status(OK.value()).body(GenericResponse.success(response));
   }

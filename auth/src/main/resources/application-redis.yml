@@ -1,0 +1,6 @@
+spring:
+  redis:
+    host: ${REDIS_HOST:172.17.0.1}
+    port: ${REDIS_PORT:6379}
+    username: ${REDIS_USERNAME:}
+    password: ${REDIS_PASSWORD:}
