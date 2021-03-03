@@ -19,14 +19,14 @@ public class ExcelUtils {
   private HSSFCellStyle commonStyle;
   private HSSFCellStyle emptyCellStyle;
 
-  public <T extends ExportableDto> Workbook exportToExcel(T data) {
+  public <T extends TableDataExporter> Workbook exportToExcel(T data) {
     HSSFWorkbook workbook = new HSSFWorkbook();
     initCellStyles(workbook);
     return addNewSheet(data, workbook);
   }
 
 
-  public <T extends ExportableDto> Workbook addNewSheet(T data, Workbook workbook) {
+  public <T extends TableDataExporter> Workbook addNewSheet(T data, Workbook workbook) {
     Sheet sheet = workbook.createSheet(data.getSheetName());
 
     addHeader(sheet, data.getColumnOrder());
@@ -36,7 +36,7 @@ public class ExcelUtils {
     return workbook;
   }
 
-  private <T extends ExportableDto> void addTableData(T data, Sheet sheet) {
+  private <T extends TableDataExporter> void addTableData(T data, Sheet sheet) {
     AtomicInteger rowNumber = new AtomicInteger(1);
     data
         .getData()
