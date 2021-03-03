@@ -42,6 +42,7 @@ public class PlaceChangeLogExporterImpl implements PlaceChangeLogExporter {
           HashMap<String, Object> data = new HashMap<>(logRes.getChangedFields());
           data.put("id", logRes.getId());
           data.put("entityId", logRes.getEntityId());
+          data.put("entityName", logRes.getEntityName());
           data.put("date", logRes.getDate());
           return data;
         })
