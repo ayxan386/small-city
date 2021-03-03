@@ -19,6 +19,6 @@ public class LogResponseDTO {
   private ChangeType changeType;
   private String entityName;
   private String entityId;
-  private Map<String, String> changedFields;
+  private Map<String, Object> changedFields;
   private LocalDateTime date;
 }

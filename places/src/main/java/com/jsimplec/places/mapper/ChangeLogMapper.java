@@ -21,9 +21,9 @@ public interface ChangeLogMapper {
   LogResponseDTO mapToResponse(EntityChangeLogModel en);
 
   @Named("stringToMap")
-  default Map<String, String> stringToMap(String fields) {
+  default Map<String, Object> stringToMap(String fields) {
     ObjectMapper objectMapper = new ObjectMapper();
-    TypeReference<Map<String, String>> typeReference = new TypeReference<>() {
+    TypeReference<Map<String, Object>> typeReference = new TypeReference<>() {
     };
     try {
       return objectMapper.readValue(fields, typeReference);
