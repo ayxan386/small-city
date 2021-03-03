@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -41,21 +42,31 @@ public class ExcelUtils {
         .getData()
         .forEach(map -> {
           Row currentRow = sheet.createRow(rowNumber.getAndAdd(1));
+          AtomicInteger columnNumber = new AtomicInteger(0);
           data
               .getColumnOrder()
-              .forEach((fieldName, columnNumber) -> {
-                Object value = map.getOrDefault(fieldName, "----");
-                String stringValue = ObjectUtils.nullSafeToString(value);
-                Cell cell = currentRow.createCell(columnNumber);
-                cell.setCellStyle(stringValue.equals("----") ? emptyCellStyle : commonStyle);
-                cell.setCellValue(stringValue);
+              .forEach(fieldName -> {
+                String stringValue = getStringValue(map, fieldName);
+                setCell(currentRow, columnNumber, stringValue);
               });
         });
   }
 
-  private void addHeader(Sheet sheet, Map<String, Integer> columnOrder) {
+  private String getStringValue(Map<String, Object> map, String fieldName) {
+    Object value = map.getOrDefault(fieldName, "----");
+    return ObjectUtils.nullSafeToString(value);
+  }
+
+  private void setCell(Row currentRow, AtomicInteger columnNumber, String stringValue) {
+    Cell cell = currentRow.createCell(columnNumber.getAndAdd(1));
+    cell.setCellStyle(stringValue.equals("----") ? emptyCellStyle : commonStyle);
+    cell.setCellValue(stringValue);
+  }
+
+  private void addHeader(Sheet sheet, List<String> columnOrder) {
     Row headers = sheet.createRow(0);
-    columnOrder.forEach((fieldName, index) -> headers.createCell(index).setCellValue(fieldName));
+    AtomicInteger index = new AtomicInteger(0);
+    columnOrder.forEach(fieldName -> headers.createCell(index.getAndAdd(1)).setCellValue(fieldName));
   }
 
   private void initCellStyles(HSSFWorkbook workbook) {

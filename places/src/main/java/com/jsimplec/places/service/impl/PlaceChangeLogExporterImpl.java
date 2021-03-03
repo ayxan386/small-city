@@ -24,13 +24,8 @@ public class PlaceChangeLogExporterImpl implements PlaceChangeLogExporter {
   }
 
   @Override
-  public Map<String, Integer> getColumnOrder() {
-    return Map.of("id", 0,
-        "date", 1,
-        "entityId", 2,
-        "name", 3,
-        "description", 4,
-        "rating", 5);
+  public List<String> getColumnOrder() {
+    return List.of("id", "date", "entityId", "entityName", "name", "description", "rating");
   }
 
   @Override
