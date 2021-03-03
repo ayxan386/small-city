@@ -1,7 +1,6 @@
 package com.jsimplec.places.service.impl;
 
 import com.jsimplec.places.service.ExcelTableExporter;
-import com.jsimplec.places.service.PlaceChangeLogExporter;
 import com.jsimplec.places.util.ExcelUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -14,7 +13,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class DateExporterImpl implements ExcelTableExporter {
-  private final PlaceChangeLogExporter placeLog;
+  private final PlaceChangeLogExporterImpl placeLog;
   private final ExcelUtils excelUtils;
 
   @Override
@@ -38,11 +37,11 @@ public class DateExporterImpl implements ExcelTableExporter {
 
   @Override
   public Workbook exportAll() {
-    return excelUtils.addNewSheet(this, placeLog.getAllLogs());
+    return excelUtils.addNewSheet(this, placeLog.exportAll());
   }
 
   @Override
   public String getFileName() {
-    return String.format("Date_only_%s.xslx", LocalDateTime.now().toString());
+    return String.format("Date_only_%s.xlsx", LocalDateTime.now().toString());
   }
 }

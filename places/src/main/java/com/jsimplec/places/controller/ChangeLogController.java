@@ -2,7 +2,8 @@ package com.jsimplec.places.controller;
 
 import com.jsimplec.places.dto.log.LogResponseDTO;
 import com.jsimplec.places.service.ChangeLogService;
-import com.jsimplec.places.service.PlaceChangeLogExporter;
+import com.jsimplec.places.service.impl.DateExporterImpl;
+import com.jsimplec.places.service.impl.PlaceChangeLogExporterImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -22,7 +23,8 @@ import java.util.List;
 public class ChangeLogController {
 
   private final ChangeLogService repository;
-  private final PlaceChangeLogExporter logExporter;
+  private final PlaceChangeLogExporterImpl logExporter;
+  private final DateExporterImpl dateExporter;
 
   @GetMapping
   public List<LogResponseDTO> getAll() {
@@ -31,11 +33,22 @@ public class ChangeLogController {
 
   @GetMapping("/excel")
   public ResponseEntity<StreamingResponseBody> getAllExcel() {
+    String fileName = logExporter.getFileName();
     return ResponseEntity
         .ok()
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
-        .header(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=\"myfilename.xlsx\"")
-        .body(s -> logExporter.getAllLogs().write(s));
+        .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline;filename=\"%s\"", fileName))
+        .body(s -> logExporter.exportAll().write(s));
+  }
+
+  @GetMapping("/excel/2")
+  public ResponseEntity<StreamingResponseBody> getAllExcel2ndPage() {
+    String fileName = dateExporter.getFileName();
+    return ResponseEntity
+        .ok()
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline;filename=\"%s\"", fileName))
+        .body(s -> dateExporter.exportAll().write(s));
   }
 
 }

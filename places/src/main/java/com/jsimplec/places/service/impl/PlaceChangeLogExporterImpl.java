@@ -52,6 +52,6 @@ public class PlaceChangeLogExporterImpl implements ExcelTableExporter {
 
   @Override
   public String getFileName() {
-    return String.format("Places_%s.xslx", LocalDateTime.now().toString());
+    return String.format("Places_%s.xlsx", LocalDateTime.now().toString());
   }
 }
