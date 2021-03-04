@@ -19,31 +19,30 @@ public class ExcelUtils {
   private HSSFCellStyle commonStyle;
   private HSSFCellStyle emptyCellStyle;
 
-  public <T extends TableDataExporter> Workbook exportToExcel(T data) {
+  public Workbook exportToExcel(TableDataExporter data) {
     HSSFWorkbook workbook = new HSSFWorkbook();
     initCellStyles(workbook);
     return addNewSheet(data, workbook);
   }
 
+  public Workbook addNewSheet(TableDataExporter dataSource, Workbook workbook) {
+    Sheet sheet = workbook.createSheet(dataSource.getSheetName());
 
-  public <T extends TableDataExporter> Workbook addNewSheet(T data, Workbook workbook) {
-    Sheet sheet = workbook.createSheet(data.getSheetName());
+    addHeader(sheet, dataSource.getColumnOrder());
 
-    addHeader(sheet, data.getColumnOrder());
-
-    addTableData(data, sheet);
+    addTableData(dataSource, sheet);
 
     return workbook;
   }
 
-  private <T extends TableDataExporter> void addTableData(T data, Sheet sheet) {
+  private void addTableData(TableDataExporter dataSource, Sheet sheet) {
     AtomicInteger rowNumber = new AtomicInteger(1);
-    data
+    dataSource
         .getData()
         .forEach(map -> {
           Row currentRow = sheet.createRow(rowNumber.getAndAdd(1));
           AtomicInteger columnNumber = new AtomicInteger(0);
-          data
+          dataSource
               .getColumnOrder()
               .forEach(fieldName -> {
                 String stringValue = getStringValue(map, fieldName);
@@ -59,8 +58,12 @@ public class ExcelUtils {
 
   private void setCell(Row currentRow, AtomicInteger columnNumber, String stringValue) {
     Cell cell = currentRow.createCell(columnNumber.getAndAdd(1));
-    cell.setCellStyle(stringValue.equals("----") ? emptyCellStyle : commonStyle);
+    cell.setCellStyle(defineAndGetCellStyle(stringValue));
     cell.setCellValue(stringValue);
+  }
+
+  private HSSFCellStyle defineAndGetCellStyle(String stringValue) {
+    return stringValue.equals("----") ? emptyCellStyle : commonStyle;
   }
 
   private void addHeader(Sheet sheet, List<String> columnOrder) {
