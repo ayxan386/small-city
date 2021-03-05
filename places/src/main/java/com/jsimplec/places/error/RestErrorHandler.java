@@ -32,7 +32,7 @@ public class RestErrorHandler {
   }
 
   private ErrorMessageDTO translateCommonHttpError(CommonHttpError err) {
-    String message = translateString(err.getDefinition().getMessage());
+    String message = String.format(translateString(err.getDefinition().getMessage()), (Object[]) err.getArgs());
     String description = translateString(err.getDefinition().getMessage());
 
     return ErrorMessageDTO
