@@ -1,5 +1,6 @@
 package com.jsimplec.places.error;
 
+import com.jsimplec.places.dto.ErrorMessageDTO;
 import com.jsimplec.places.dto.ErrorResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -14,18 +15,34 @@ public class RestErrorHandler {
 
   @ExceptionHandler(CommonHttpError.class)
   ResponseEntity<ErrorResponseDTO> handleCommonError(CommonHttpError error) {
-    log.error("{} --> {}", error.getCode(), error.getMessage());
-    return ResponseEntity.status(error.getStatus()).body(buildErrorResponse(error));
+    ErrorDefinition definition = error.getDefinition();
+    log.error("{}", error.getMessage());
+    return ResponseEntity.status(definition.getStatus()).body(buildErrorResponse(error));
   }
 
   private ErrorResponseDTO buildErrorResponse(CommonHttpError error) {
+    ErrorMessageDTO translatedMessage = translateCommonHttpError(error);
     return ErrorResponseDTO
         .builder()
-        .message(error.getMessage())
-        .description(error.getMessage())
-        .errorCode(error.getCode())
+        .message(translatedMessage.getMessage())
+        .description(translatedMessage.getDescription())
         .time(LocalDateTime.now())
-        .status(error.getStatus())
+        .status(error.getDefinition().getStatus())
         .build();
+  }
+
+  private ErrorMessageDTO translateCommonHttpError(CommonHttpError err) {
+    String message = translateString(err.getDefinition().getMessage());
+    String description = translateString(err.getDefinition().getMessage());
+
+    return ErrorMessageDTO
+        .builder()
+        .message(message)
+        .description(description)
+        .build();
+  }
+
+  private String translateString(String toTranslate) {
+    return toTranslate;
   }
 }

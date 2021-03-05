@@ -2,7 +2,7 @@ package com.jsimplec.places.service.impl;
 
 import com.jsimplec.places.dto.reviews.ReviewRatingRequestDTO;
 import com.jsimplec.places.dto.reviews.ReviewRatingResponseDTO;
-import com.jsimplec.places.error.specific.PlaceNotFoundError;
+import com.jsimplec.places.error.CommonHttpError;
 import com.jsimplec.places.mapper.ReviewRatingMapper;
 import com.jsimplec.places.model.ReviewRatingModel;
 import com.jsimplec.places.repository.PlaceRepository;
@@ -17,6 +17,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.jsimplec.places.error.ErrorDefinition.PLACE_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -47,7 +49,7 @@ public class ReviewRatingServiceImpl implements ReviewRatingService {
 
   private void checkIfPlaceExists(ReviewRatingRequestDTO requestDTO) {
     if (!placeRepository.existsById(requestDTO.getPlaceId())) {
-      throw new PlaceNotFoundError();
+      throw new CommonHttpError(PLACE_NOT_FOUND, requestDTO.getPlaceId().toString());
     }
   }
 
