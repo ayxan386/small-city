@@ -1,18 +1,26 @@
 package com.jsimplec.places.error;
 
-import com.jsimplec.places.constants.ErrorCodes;
 import lombok.Getter;
 
 @Getter
 public class CommonHttpError extends RuntimeException {
 
-  private final String message;
-  private final ErrorCodes code;
-  private final int status;
+  private final ErrorDefinition definition;
+  private final Throwable cause;
+  private final String[] args;
 
-  public CommonHttpError(String message, ErrorCodes code, int status) {
-    this.message = message;
-    this.code = code;
-    this.status = status;
+  public CommonHttpError(ErrorDefinition definition) {
+    this(definition, (Throwable) null);
+  }
+
+  public CommonHttpError(ErrorDefinition definition, String... args) {
+    this(definition, null, args);
+  }
+
+  public CommonHttpError(ErrorDefinition definition, Throwable cause, String... args) {
+    super(definition.getMessage());
+    this.definition = definition;
+    this.cause = cause;
+    this.args = args;
   }
 }
