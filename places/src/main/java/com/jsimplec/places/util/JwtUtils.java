@@ -13,6 +13,7 @@ public class JwtUtils {
   public String getUsername(String token) {
     return Jwts
         .parserBuilder()
+        .setSigningKey(secretKey)
         .build()
         .parseClaimsJws(token)
         .getBody()

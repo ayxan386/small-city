@@ -27,13 +27,16 @@ public class TokenFilter extends OncePerRequestFilter {
   private final JwtUtils jwtUtils;
   private final HandlerExceptionResolver exceptionResolver;
 
-  public TokenFilter(JwtUtils jwtUtils, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
+  public TokenFilter(JwtUtils jwtUtils,
+                     @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
     this.jwtUtils = jwtUtils;
     this.exceptionResolver = exceptionResolver;
   }
 
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+  protected void doFilterInternal(HttpServletRequest request,
+                                  HttpServletResponse response,
+                                  FilterChain filterChain) throws ServletException, IOException {
     try {
       final String authHeader = verifyAndGetAuthHeaderIfPresent(request);
       final String token = verifyAndGetTokenFromHeader(authHeader);
