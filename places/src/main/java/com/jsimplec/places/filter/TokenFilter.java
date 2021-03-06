@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 import static com.jsimplec.places.error.ErrorDefinition.AUTH_HEADER_NOT_PRESENT;
 import static com.jsimplec.places.error.ErrorDefinition.TOKEN_EXPIRED;
@@ -26,6 +27,7 @@ public class TokenFilter extends OncePerRequestFilter {
   public static final String AUTH_PREFIX = "Bearer ";
   private final JwtUtils jwtUtils;
   private final HandlerExceptionResolver exceptionResolver;
+  private final List<String> allowedPaths = List.of("/places");
 
   public TokenFilter(JwtUtils jwtUtils,
                      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
@@ -37,6 +39,10 @@ public class TokenFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request,
                                   HttpServletResponse response,
                                   FilterChain filterChain) throws ServletException, IOException {
+    if (!isAuthRequired(request.getServletPath())) {
+      filterChain.doFilter(request, response);
+      return;
+    }
     try {
       final String authHeader = verifyAndGetAuthHeaderIfPresent(request);
       final String token = verifyAndGetTokenFromHeader(authHeader);
@@ -50,6 +56,10 @@ public class TokenFilter extends OncePerRequestFilter {
     } catch (CommonHttpError err) {
       exceptionResolver.resolveException(request, response, null, err);
     }
+  }
+
+  private boolean isAuthRequired(String pathInfo) {
+    return allowedPaths.stream().noneMatch(pathInfo::endsWith);
   }
 
   private String verifyAndGetTokenFromHeader(String authHeader) {
