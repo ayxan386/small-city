@@ -1,0 +1,32 @@
+version: "3.0"
+services:
+  # postgres:
+  #   image: "postgres"
+  #   ports:
+  #     - "5432:5432"
+  redis:
+    image: "redis"
+    ports:
+      - "6379:6379"
+  auth:
+    image: "s_auth:1.0.1"
+    ports:
+      - "8084:8084"
+    env_file:
+      - ./.env.local
+    depends_on:
+      - redis
+      - eureka
+  places:
+    image: "s_places:1.0.0"
+    ports:
+      - "8081:8081"
+    env_file:
+      - ./.env.local
+    depends_on:
+      - redis
+      - eureka
+  eureka:
+    image: "s_service_discovery:1.0.0"
+    ports:
+      - "8761:8761"
