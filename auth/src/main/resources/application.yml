@@ -7,7 +7,7 @@ spring:
   application:
     name: Auth
   profiles:
-    include: email, db, redis
+    include: email, db, redis, eureka
 
 secrets:
   jwt:
