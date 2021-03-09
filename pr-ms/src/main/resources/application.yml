@@ -3,3 +3,6 @@ spring:
     active: db, redis, eureka, kafka
   application:
     name: PR
+server:
+  servlet:
+    context-path: /api/v1/pr-ms
