@@ -7,15 +7,14 @@ import com.jsimplec.prms.service.PrPlanService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/pr-plan")
+@RequestMapping("/plan")
 public class PrPlanController {
 
   private final PrPlanService planService;
@@ -25,6 +24,14 @@ public class PrPlanController {
     log.info("Trying to add new pr-plan {}", req.getName());
     PrPlanResponseDTO res = planService.addPlan(req);
     log.info("Successfully  added new pr-plan {}, {}", req.getName(), res.getId());
+    return ResponseEntity.ok(GenericResponse.success(res));
+  }
+
+  @GetMapping("/all-active")
+  public ResponseEntity<GenericResponse<List<PrPlanResponseDTO>>> getAllActive() {
+    log.info("Trying to get all active pr-plan");
+    List<PrPlanResponseDTO> res = planService.getAllActivePlans();
+    log.info("Successfully obtained all active pr-plan");
     return ResponseEntity.ok(GenericResponse.success(res));
   }
 }
