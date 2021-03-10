@@ -36,4 +36,5 @@ public class PrPlanServiceImpl implements PrPlanService {
   public List<PrPlanResponseDTO> getAllActivePlans() {
     throw new GenericError(NOT_IMPLEMENTED);
   }
+
 }
