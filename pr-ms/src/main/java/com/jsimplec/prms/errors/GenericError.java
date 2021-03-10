@@ -2,6 +2,8 @@ package com.jsimplec.prms.errors;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+
 @Getter
 public class GenericError extends RuntimeException {
 
@@ -18,4 +20,8 @@ public class GenericError extends RuntimeException {
     this(definition, new Object[0]);
   }
 
+  @Override
+  public String toString() {
+    return String.format("%s with args [%s]", errorDefinition, Arrays.toString(args));
+  }
 }
