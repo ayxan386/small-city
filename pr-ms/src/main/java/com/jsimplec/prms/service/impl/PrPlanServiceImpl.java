@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.jsimplec.prms.errors.ErrorDefinition.NOT_IMPLEMENTED;
 import static com.jsimplec.prms.errors.ErrorDefinition.PR_PLAN_ALREADY_EXISTS;
@@ -19,22 +20,26 @@ import static com.jsimplec.prms.errors.ErrorDefinition.PR_PLAN_ALREADY_EXISTS;
 @RequiredArgsConstructor
 public class PrPlanServiceImpl implements PrPlanService {
 
-  private final PrPlanRepository planRepository;
-  private final PrPlanMapper planMapper;
+    private final PrPlanRepository planRepository;
+    private final PrPlanMapper planMapper;
 
-  @Override
-  public PrPlanResponseDTO addPlan(PrPlanRequestDTO req) {
-    if (planRepository.existsByName(req.getName())) {
-      throw new GenericError(PR_PLAN_ALREADY_EXISTS, req.getName());
+    @Override
+    public PrPlanResponseDTO addPlan(PrPlanRequestDTO req) {
+        if (planRepository.existsByName(req.getName())) {
+            throw new GenericError(PR_PLAN_ALREADY_EXISTS, req.getName());
+        }
+        PrPlanModel prModelToSave = planMapper.requestToModel(req);
+        PrPlanModel savedPrModel = planRepository.save(prModelToSave);
+        return planMapper.modelToResponse(savedPrModel);
     }
-    PrPlanModel prModelToSave = planMapper.requestToModel(req);
-    PrPlanModel savedPrModel = planRepository.save(prModelToSave);
-    return planMapper.modelToResponse(savedPrModel);
-  }
 
-  @Override
-  public List<PrPlanResponseDTO> getAllActivePlans() {
-    throw new GenericError(NOT_IMPLEMENTED);
-  }
+    @Override
+    public List<PrPlanResponseDTO> getAllActivePlans() {
+        return planRepository
+                .findAllByIsActiveTrue()
+                .stream()
+                .map(planMapper::modelToResponse)
+                .collect(Collectors.toList());
+    }
 
 }
