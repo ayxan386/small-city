@@ -1,4 +1,7 @@
 spring:
+  cache:
+    redis:
+      time-to-live: 10m
   redis:
     host: ${REDIS_URL:172.17.0.1}
     port: ${REDIS_PORT:6379}

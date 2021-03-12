@@ -6,8 +6,17 @@ services:
   #     - "5432:5432"
   redis:
     image: "redis"
+    hostname: redis
     ports:
       - "6379:6379"
+  redis-commander:
+    container_name: redis-commander
+    hostname: redis-commander
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8000:8081"
   auth:
     image: "s-auth:1.0.0"
     ports:
