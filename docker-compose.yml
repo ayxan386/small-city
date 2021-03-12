@@ -9,7 +9,7 @@ services:
     ports:
       - "6379:6379"
   auth:
-    image: "s_auth:1.0.1"
+    image: "s-auth:1.0.0"
     ports:
       - "8084:8084"
     env_file:
@@ -18,7 +18,7 @@ services:
       - redis
       - eureka
   places:
-    image: "s_places:1.0.0"
+    image: "s-places:1.0.0"
     ports:
       - "8081:8081"
     env_file:
@@ -27,6 +27,6 @@ services:
       - redis
       - eureka
   eureka:
-    image: "s_service_discovery:1.0.0"
+    image: "s-service-discovery:1.0.0"
     ports:
       - "8761:8761"
