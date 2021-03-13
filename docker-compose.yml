@@ -18,7 +18,7 @@ services:
     ports:
       - "8000:8081"
   auth:
-    image: "s-auth:1.0.0"
+    image: "s-auth:1.0.1"
     ports:
       - "8084:8084"
     env_file:
