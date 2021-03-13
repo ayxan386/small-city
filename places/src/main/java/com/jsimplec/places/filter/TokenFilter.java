@@ -4,6 +4,7 @@ import com.jsimplec.places.error.CommonHttpError;
 import com.jsimplec.places.error.ErrorDefinition;
 import com.jsimplec.places.util.JwtUtils;
 import io.jsonwebtoken.ExpiredJwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -16,18 +17,22 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import static com.jsimplec.places.error.ErrorDefinition.AUTH_HEADER_NOT_PRESENT;
 import static com.jsimplec.places.error.ErrorDefinition.TOKEN_EXPIRED;
 
+@Slf4j
 @Component
 public class TokenFilter extends OncePerRequestFilter {
 
   public static final String AUTH_PREFIX = "Bearer ";
+
   private final JwtUtils jwtUtils;
   private final HandlerExceptionResolver exceptionResolver;
-  private final List<String> allowedPaths = List.of("/places");
+  private final Map<Pattern, String> allowedPaths = Map.of(Pattern.compile("/places*"), "GET",
+      Pattern.compile("/review/.+"), "GET");
 
   public TokenFilter(JwtUtils jwtUtils,
                      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
@@ -39,7 +44,7 @@ public class TokenFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request,
                                   HttpServletResponse response,
                                   FilterChain filterChain) throws ServletException, IOException {
-    if (!isAuthRequired(request.getServletPath())) {
+    if (!isAuthRequired(request)) {
       filterChain.doFilter(request, response);
       return;
     }
@@ -58,8 +63,17 @@ public class TokenFilter extends OncePerRequestFilter {
     }
   }
 
-  private boolean isAuthRequired(String pathInfo) {
-    return allowedPaths.stream().noneMatch(pathInfo::endsWith);
+  private boolean isAuthRequired(HttpServletRequest req) {
+    return allowedPaths
+        .entrySet()
+        .stream()
+        .noneMatch(pair -> {
+          String requestPath = req.getServletPath();
+          String method = req.getMethod();
+          boolean pathMatches = pair.getKey().matcher(requestPath).matches();
+          boolean methodMatches = method.equalsIgnoreCase(pair.getValue());
+          return pathMatches && methodMatches;
+        });
   }
 
   private String verifyAndGetTokenFromHeader(String authHeader) {
