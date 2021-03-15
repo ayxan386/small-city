@@ -29,8 +29,7 @@ public class TokenFilter extends OncePerRequestFilter {
 
   private final JwtUtils jwtUtils;
   private final HandlerExceptionResolver exceptionResolver;
-  private final Map<Pattern, String> allowedPaths = Map.of(Pattern.compile("/plan/add*"), "POST",
-      Pattern.compile("/plan/purchase"), "POST");
+  private final Map<Pattern, String> allowedPaths = Map.of(Pattern.compile("/plan/all-active"), "GET");
 
   public TokenFilter(JwtUtils jwtUtils,
                      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
