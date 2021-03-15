@@ -11,7 +11,8 @@ public enum ErrorDefinition {
   INVALID_METHOD_ARGUMENT("Invalid method argument: %s", 400, "invalid_method_argument"),
   TOKEN_EXPIRED("Token expired", 401, "token_expired"),
   WRONG_HEADER_STRUCTURE("Invalid header structure", 400, "wrong_header"),
-  AUTH_HEADER_NOT_PRESENT("Authorization header is not present", 401, "auth_header_missing");
+  AUTH_HEADER_NOT_PRESENT("Authorization header is not present", 401, "auth_header_missing"),
+  PR_PLAN_NOT_FOUND("PR plan not found", 404, "pr_plan_not_found");
   private final String message;
   private final int status;
   private final String localKey;

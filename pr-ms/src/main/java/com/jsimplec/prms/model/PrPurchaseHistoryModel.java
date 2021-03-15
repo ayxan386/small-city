@@ -29,7 +29,7 @@ public class PrPurchaseHistoryModel {
   private String username;
   private String transferId;
 
-  private String prPlanId;
+  private UUID prPlanId;
   private Integer placeId;
 
   @CreationTimestamp

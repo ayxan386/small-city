@@ -6,5 +6,5 @@ import java.util.UUID;
 
 public interface PrPurchaseService {
 
-  UUID makePurchase(PrPurchaseRequestDTO req);
+  UUID makePurchase(PrPurchaseRequestDTO req, String username);
 }

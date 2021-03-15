@@ -6,6 +6,7 @@ import com.jsimplec.prms.dto.prplan.PrPlanResponseDTO;
 import com.jsimplec.prms.dto.prpurchase.PrPurchaseRequestDTO;
 import com.jsimplec.prms.service.PrPlanService;
 import com.jsimplec.prms.service.PrPurchaseService;
+import com.jsimplec.prms.util.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -41,9 +42,12 @@ public class PrPlanController {
   }
 
   @PostMapping("/purchase")
-  public void makePurchase(@RequestBody PrPurchaseRequestDTO request) {
+  public GenericResponse<UUID> makePurchase(@RequestBody PrPurchaseRequestDTO request,
+                                            @RequestAttribute(name = JwtUtils.ATTR_USERNAME) String username) {
     log.info("Trying to make purchase for place {}", request.getPlaceId());
-    UUID historyId = purchaseService.makePurchase(request);
+    UUID historyId = purchaseService.makePurchase(request, username);
     log.info("Successfully made purchase for place {}; history id {}", request.getPlaceId(), historyId);
+
+    return GenericResponse.success(historyId);
   }
 }
