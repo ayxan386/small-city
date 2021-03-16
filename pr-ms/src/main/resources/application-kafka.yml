@@ -1,3 +1,5 @@
 kafka:
   host: ${KAFKA_HOST:172.17.0.1}
   port: ${KAFKA_PORT:9092}
+  topics:
+    pr-purchase: ${TOPICS_PR_PURCHASE:pr-purchase}

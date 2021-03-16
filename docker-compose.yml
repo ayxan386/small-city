@@ -19,13 +19,11 @@ services:
       - "8000:8081"
   kafka:
     container_name: kafka
-    hostname: kafka
+    # hostname: kafka
     image: "landoop/fast-data-dev:latest"
     ports:
       - "2181:2181"
       - "3030:3030"  
-        #- "8081-8083:8081-8083"
-        #- "9581-9585:9581-9185"
       - "9092:9092"
   auth:
     image: "s-auth:1.0.1"
@@ -39,7 +37,7 @@ services:
   places:
     image: "s-places:1.0.0"
     ports:
-      - "8081:8081"
+      - "8085:8081"
     env_file:
       - ./.env.local
     depends_on:
