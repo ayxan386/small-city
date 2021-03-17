@@ -17,14 +17,6 @@ services:
       - REDIS_HOSTS=local:redis:6379
     ports:
       - "8000:8081"
-  kafka:
-    container_name: kafka
-    # hostname: kafka
-    image: "landoop/fast-data-dev:latest"
-    ports:
-      - "2181:2181"
-      - "3030:3030"  
-      - "9092:9092"
   auth:
     image: "s-auth:1.0.1"
     ports:
@@ -38,6 +30,15 @@ services:
     image: "s-places:1.0.0"
     ports:
       - "8085:8081"
+    env_file:
+      - ./.env.local
+    depends_on:
+      - redis
+      - eureka
+  pr:
+    image: "s-pr:1.0.0"
+    ports:
+      - "8086:8080"
     env_file:
       - ./.env.local
     depends_on:
