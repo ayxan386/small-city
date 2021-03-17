@@ -2,9 +2,9 @@ spring:
   application:
     name: Places
   profiles:
-    include: db, eureka
+    include: db, eureka, kafka
 server:
-  port: ${SERVER_PORT:8081}
+  port: ${SERVER_PORT:8085}
   servlet:
     context-path: /api/places/v1
     application-display-name: Places
