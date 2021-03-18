@@ -9,6 +9,9 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.LoggingErrorHandler;
+import org.springframework.kafka.support.converter.DefaultJackson2JavaTypeMapper;
+import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.retry.backoff.FixedBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
@@ -26,13 +29,17 @@ public class KafkaConsumerConfig {
   @Value("${kafka.port}")
   private String kafkaPort;
 
+
   @Bean
-  ConcurrentKafkaListenerContainerFactory<String, Object>
+  public ConcurrentKafkaListenerContainerFactory<String, String>
   kafkaListenerContainerFactory() {
-    ConcurrentKafkaListenerContainerFactory<String, Object> factory =
+    ConcurrentKafkaListenerContainerFactory<String, String> factory =
         new ConcurrentKafkaListenerContainerFactory<>();
+
     factory.setConsumerFactory(consumerFactory());
+    factory.setMessageConverter(new StringJsonMessageConverter());
     factory.setRetryTemplate(getSimpleRetry());
+    factory.setErrorHandler(new LoggingErrorHandler());
     return factory;
   }
 
@@ -53,7 +60,7 @@ public class KafkaConsumerConfig {
   }
 
   @Bean
-  public ConsumerFactory<String, Object> consumerFactory() {
+  public ConsumerFactory<String, String> consumerFactory() {
     return new DefaultKafkaConsumerFactory<>(consumerProps());
   }
 
@@ -62,7 +69,7 @@ public class KafkaConsumerConfig {
     props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, String.format("%s:%s", kafkaHost, kafkaPort));
     props.put(ConsumerConfig.GROUP_ID_CONFIG, "places-group");
     props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
     return props;
   }
