@@ -3,3 +3,9 @@ kafka:
   port: ${KAFKA_PORT:9092}
   topics:
     pr-purchase: ${TOPICS_PR_PURCHASE:pr-purchase}
+
+spring:
+  kafka:
+    admin:
+      properties:
+        spring.json.trusted.packages: "*"
