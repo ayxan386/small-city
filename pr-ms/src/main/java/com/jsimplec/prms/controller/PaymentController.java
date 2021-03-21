@@ -1,5 +1,6 @@
 package com.jsimplec.prms.controller;
 
+import com.jsimplec.prms.model.PaymentRedisModel;
 import com.jsimplec.prms.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,9 +25,10 @@ public class PaymentController {
   }
 
   @PostMapping("/make")
-  public void makePayment(@RequestAttribute("username") String username) {
+  public PaymentRedisModel makePayment(@RequestAttribute("username") String username) {
     log.info("Making payment for {}", username);
-    paymentService.preparePayment(username);
+    PaymentRedisModel res = paymentService.makePayment(username);
     log.info("Making payment was successful");
+    return res;
   }
 }
