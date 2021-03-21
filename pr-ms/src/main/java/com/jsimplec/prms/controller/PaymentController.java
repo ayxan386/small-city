@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -25,9 +27,9 @@ public class PaymentController {
   }
 
   @PostMapping("/make")
-  public PaymentRedisModel makePayment(@RequestAttribute("username") String username) {
+  public Optional<PaymentRedisModel> makePayment(@RequestAttribute("username") String username) {
     log.info("Making payment for {}", username);
-    PaymentRedisModel res = paymentService.makePayment(username);
+    Optional<PaymentRedisModel> res = paymentService.makePayment(username);
     log.info("Making payment was successful");
     return res;
   }

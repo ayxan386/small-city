@@ -13,6 +13,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.jsimplec.prms.model.PaymentRedisModel.RedisStatus.COMPLETED;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -26,23 +28,23 @@ public class PaymentServiceImpl implements PaymentService {
   }
 
   @Override
-  public PaymentRedisModel makePayment(String username) {
+  public Optional<PaymentRedisModel> makePayment(String username) {
     PaymentRedisModel paymentRedisModel = new PaymentRedisModel();
     paymentRedisModel.setUsername(username);
+    paymentRedisModel.setStatus(COMPLETED);
     Example<PaymentRedisModel> example = Example.of(paymentRedisModel);
 
-    Optional<PaymentRedisModel> res = paymentRedisRepository.findOne(example);
     AtomicInteger counter = new AtomicInteger(15);
-    while (res.isEmpty() && counter.getAndAdd(-1) > 0) {
+    while (!paymentRedisRepository.exists(example) && counter.getAndAdd(-1) > 0) {
       try {
-        Thread.sleep(100);
+        Thread.sleep(1000);
       } catch (InterruptedException e) {
-//        e.printStackTrace();
+        //.asdasd
       }
-      res = paymentRedisRepository.findOne(example);
     }
+    paymentRedisRepository.findAll(example).forEach(pr -> log.info("{}", pr));
 
-    return res.get();
+    return paymentRedisRepository.findOne(Example.of(paymentRedisModel));
   }
 
   @Async
@@ -59,7 +61,7 @@ public class PaymentServiceImpl implements PaymentService {
 
       Thread.sleep(10000);
 
-      paymentRedisModel.setStatus(PaymentRedisModel.RedisStatus.COMPLETED);
+      paymentRedisModel.setStatus(COMPLETED);
       paymentRedisRepository.save(paymentRedisModel);
 
       log.info("Done saving completed payment");
