@@ -13,7 +13,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@RedisHash(value = "payment", timeToLive = 60000)
+@RedisHash(value = "payment", timeToLive = 30)
 public class PaymentRedisModel {
   @Id
   private UUID id;
