@@ -19,10 +19,5 @@ public class PaymentRedisModel {
   private UUID id;
   private String username;
   @Builder.Default
-  private RedisStatus status = RedisStatus.PENDING;
-
-  public enum RedisStatus {
-    PENDING,
-    COMPLETED
-  }
+  private boolean isReady = false;
 }

@@ -6,14 +6,17 @@ import com.jsimplec.prms.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.StreamSupport;
 
-import static com.jsimplec.prms.model.PaymentRedisModel.RedisStatus.COMPLETED;
+import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.exact;
 
 @Slf4j
 @Service
@@ -31,10 +34,16 @@ public class PaymentServiceImpl implements PaymentService {
   public Optional<PaymentRedisModel> makePayment(String username) {
     PaymentRedisModel paymentRedisModel = new PaymentRedisModel();
     paymentRedisModel.setUsername(username);
-    paymentRedisModel.setStatus(COMPLETED);
-    Example<PaymentRedisModel> example = Example.of(paymentRedisModel);
+    paymentRedisModel.setReady(true);
 
+    ExampleMatcher matcher = ExampleMatcher
+        .matching()
+        .withMatcher("username", exact())
+        .withMatcher("isReady", exact());
+
+    Example<PaymentRedisModel> example = Example.of(paymentRedisModel, matcher);
     AtomicInteger counter = new AtomicInteger(15);
+
     while (!paymentRedisRepository.exists(example) && counter.getAndAdd(-1) > 0) {
       try {
         Thread.sleep(1000);
@@ -42,9 +51,12 @@ public class PaymentServiceImpl implements PaymentService {
         //.asdasd
       }
     }
-    paymentRedisRepository.findAll(example).forEach(pr -> log.info("{}", pr));
 
-    return paymentRedisRepository.findOne(Example.of(paymentRedisModel));
+    Iterable<PaymentRedisModel> all = paymentRedisRepository.findAll(example);
+    return StreamSupport
+        .stream(all.spliterator(), false)
+        .filter(Objects::nonNull)
+        .findAny();
   }
 
   @Async
@@ -61,7 +73,7 @@ public class PaymentServiceImpl implements PaymentService {
 
       Thread.sleep(10000);
 
-      paymentRedisModel.setStatus(COMPLETED);
+      paymentRedisModel.setReady(true);
       paymentRedisRepository.save(paymentRedisModel);
 
       log.info("Done saving completed payment");
