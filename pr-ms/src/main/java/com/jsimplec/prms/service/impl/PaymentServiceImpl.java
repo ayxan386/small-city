@@ -5,18 +5,11 @@ import com.jsimplec.prms.repository.PaymentRedisRepository;
 import com.jsimplec.prms.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.StreamSupport;
-
-import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.exact;
 
 @Slf4j
 @Service
@@ -33,18 +26,10 @@ public class PaymentServiceImpl implements PaymentService {
   @Override
   public Optional<PaymentRedisModel> makePayment(String username) {
     PaymentRedisModel paymentRedisModel = new PaymentRedisModel();
-    paymentRedisModel.setUsername(username);
-    paymentRedisModel.setReady(true);
+    paymentRedisModel.setId(username);
 
-    ExampleMatcher matcher = ExampleMatcher
-        .matching()
-        .withMatcher("username", exact())
-        .withMatcher("isReady", exact());
-
-    Example<PaymentRedisModel> example = Example.of(paymentRedisModel, matcher);
     AtomicInteger counter = new AtomicInteger(15);
-
-    while (!paymentRedisRepository.exists(example) && counter.getAndAdd(-1) > 0) {
+    while (!existsReadyPayment(username) && counter.getAndAdd(-1) > 0) {
       try {
         Thread.sleep(1000);
       } catch (InterruptedException e) {
@@ -52,11 +37,13 @@ public class PaymentServiceImpl implements PaymentService {
       }
     }
 
-    Iterable<PaymentRedisModel> all = paymentRedisRepository.findAll(example);
-    return StreamSupport
-        .stream(all.spliterator(), false)
-        .filter(Objects::nonNull)
-        .findAny();
+    return paymentRedisRepository.findById(username);
+  }
+
+  private boolean existsReadyPayment(String username) {
+    return paymentRedisRepository.findById(username)
+        .filter(PaymentRedisModel::isReady)
+        .isPresent();
   }
 
   @Async
@@ -64,8 +51,7 @@ public class PaymentServiceImpl implements PaymentService {
     try {
       PaymentRedisModel paymentRedisModel = PaymentRedisModel
           .builder()
-          .id(UUID.randomUUID())
-          .username(username)
+          .id(username)
           .build();
       paymentRedisRepository.save(paymentRedisModel);
 

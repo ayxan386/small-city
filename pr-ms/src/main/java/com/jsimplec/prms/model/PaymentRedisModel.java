@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-import java.util.UUID;
-
 @Data
 @Builder
 @NoArgsConstructor
@@ -16,8 +14,7 @@ import java.util.UUID;
 @RedisHash(value = "payment", timeToLive = 30)
 public class PaymentRedisModel {
   @Id
-  private UUID id;
-  private String username;
+  private String id;
   @Builder.Default
   private boolean isReady = false;
 }
