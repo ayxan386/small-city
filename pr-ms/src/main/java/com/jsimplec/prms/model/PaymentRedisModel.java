@@ -7,22 +7,14 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-import java.util.UUID;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@RedisHash(value = "payment", timeToLive = 60000)
+@RedisHash(value = "payment", timeToLive = 30)
 public class PaymentRedisModel {
   @Id
-  private UUID id;
-  private String username;
+  private String id;
   @Builder.Default
-  private RedisStatus status = RedisStatus.PENDING;
-
-  public enum RedisStatus {
-    PENDING,
-    COMPLETED
-  }
+  private boolean isReady = false;
 }
