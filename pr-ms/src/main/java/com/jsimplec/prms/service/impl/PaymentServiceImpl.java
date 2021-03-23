@@ -18,6 +18,7 @@ public class PaymentServiceImpl implements PaymentService {
 
   private final PaymentRedisRepository paymentRedisRepository;
 
+  @Async
   @Override
   public void preparePayment(String username) {
     prepare(username);
@@ -46,7 +47,6 @@ public class PaymentServiceImpl implements PaymentService {
         .isPresent();
   }
 
-  @Async
   public void prepare(String username) {
     try {
       PaymentRedisModel paymentRedisModel = PaymentRedisModel
