@@ -6,6 +6,7 @@ spring:
 server:
   servlet:
     context-path: /api/v1/pr-ms
+  port: 8080
 
 jwt:
   secret-key: ${JWT_SECRET:Q8Di7/+nCH/V8fQyB7jDZAxQLAos/pmEZw/K1KecaQQ=}
