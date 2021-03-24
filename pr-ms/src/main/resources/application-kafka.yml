@@ -3,3 +3,7 @@ kafka:
   port: ${KAFKA_PORT:9092}
   topics:
     pr-purchase: ${TOPICS_PR_PURCHASE:pr-purchase}
+
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST:nothost}:${KAFKA_PORT:9092}

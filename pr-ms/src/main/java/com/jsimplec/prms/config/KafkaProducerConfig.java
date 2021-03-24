@@ -30,10 +30,13 @@ public class KafkaProducerConfig {
   private Map<String, Object> senderProps() {
     Map<String, Object> props = new HashMap<>();
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, String.format("%s:%s", kafkaHost, kafkaPort));
-    props.put(ProducerConfig.LINGER_MS_CONFIG, 10);
+    props.put(ProducerConfig.LINGER_MS_CONFIG, 1000);
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-
+    props.put(ProducerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, 1000);
+    props.put(ProducerConfig.RECONNECT_BACKOFF_MS_CONFIG, 1000);
+    props.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 1000);
+    props.put(ProducerConfig.RETRIES_CONFIG, 10);
     return props;
   }
 

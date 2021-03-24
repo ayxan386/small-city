@@ -10,12 +10,15 @@ import com.jsimplec.prms.repository.PrPlanRepository;
 import com.jsimplec.prms.repository.PrPurchaseHistoryRepository;
 import com.jsimplec.prms.service.PrPurchaseService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PrPurchaseServiceImpl implements PrPurchaseService {
@@ -42,6 +45,8 @@ public class PrPurchaseServiceImpl implements PrPurchaseService {
         .build();
     historyModel = historyRepository.save(historyModel);
 
+    Map<String, Object> configurationProperties = kafkaTemplate.getProducerFactory().getConfigurationProperties();
+    log.info("configs {}", configurationProperties);
     kafkaTemplate.send(prPurchaseTopic, buildPrPurchaseModel(historyModel, prPlan));
 
     return historyModel.getId();
