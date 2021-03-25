@@ -34,7 +34,8 @@ public class PaymentServiceImpl implements PaymentService {
       try {
         Thread.sleep(1000);
       } catch (InterruptedException e) {
-        //.asdasd
+        log.error("Current thread is interrupted");
+        Thread.currentThread().interrupt();
       }
     }
 
@@ -64,7 +65,8 @@ public class PaymentServiceImpl implements PaymentService {
 
       log.info("Done saving completed payment");
     } catch (InterruptedException e) {
-      //don't care
+      log.error("Current thread is interrupted");
+      Thread.currentThread().interrupt();
     }
   }
 }
