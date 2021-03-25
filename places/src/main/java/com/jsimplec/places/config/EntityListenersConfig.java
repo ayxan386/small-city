@@ -10,12 +10,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 public class EntityListenersConfig {
 
   @Autowired
-  public void injectObjectMapper(ObjectMapper objectMapper) {
-    LoggedModelChangeListener.objectMapper = objectMapper;
+  public void injectObjectMapper(ObjectMapper objectMapper, RedisTemplate<String, String> redisTemplate) {
+    LoggedModelChangeListener.setFields(objectMapper, redisTemplate);
   }
 
-  @Autowired
-  public void injectLogRepository(RedisTemplate<String, String> redisTemplate) {
-    LoggedModelChangeListener.redisTemplate = redisTemplate;
-  }
 }

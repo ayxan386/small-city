@@ -26,11 +26,11 @@ import static java.util.Collections.emptyList;
 @NoArgsConstructor
 public class LoggedModelChangeListener {
 
-  private final static TypeReference<Map<String, String>> mapReference = new TypeReference<>() {
+  private static final TypeReference<Map<String, String>> mapReference = new TypeReference<>() {
   };
-  public static ObjectMapper objectMapper;
-  public static RedisTemplate<String, String> redisTemplate;
-  public List<String> ignoredFields = emptyList();
+  private static ObjectMapper objectMapper;
+  private static RedisTemplate<String, String> redisTemplate;
+  private List<String> ignoredFields = emptyList();
 
   @PostLoad
   public void setupPreviousFields(LoggedModel loggedModel) {
@@ -103,4 +103,8 @@ public class LoggedModelChangeListener {
     loggedModel.setPrevFields(fields);
   }
 
+  public static void setFields(ObjectMapper objectMapper, RedisTemplate<String, String> redisTemplate){
+   LoggedModelChangeListener.objectMapper = objectMapper;
+   LoggedModelChangeListener.redisTemplate = redisTemplate;
+  }
 }

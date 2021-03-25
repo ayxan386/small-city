@@ -51,15 +51,22 @@ public class TokenFilter extends OncePerRequestFilter {
     try {
       final String authHeader = verifyAndGetAuthHeaderIfPresent(request);
       final String token = verifyAndGetTokenFromHeader(authHeader);
-      try {
-        String username = jwtUtils.getUsername(token);
-        request.setAttribute(JwtUtils.ATTR_USERNAME, username);
-        filterChain.doFilter(request, response);
-      } catch (ExpiredJwtException exx) {
-        throw new CommonHttpError(TOKEN_EXPIRED);
-      }
+      verifyExpirationAndDoFilter(request, response, filterChain, token);
     } catch (CommonHttpError err) {
       exceptionResolver.resolveException(request, response, null, err);
+    }
+  }
+
+  private void verifyExpirationAndDoFilter(HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           FilterChain filterChain,
+                                           String token) throws IOException, ServletException {
+    try {
+      String username = jwtUtils.getUsername(token);
+      request.setAttribute(JwtUtils.ATTR_USERNAME, username);
+      filterChain.doFilter(request, response);
+    } catch (ExpiredJwtException exx) {
+      throw new CommonHttpError(TOKEN_EXPIRED);
     }
   }
 

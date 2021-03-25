@@ -10,7 +10,6 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.LoggingErrorHandler;
-import org.springframework.kafka.support.converter.DefaultJackson2JavaTypeMapper;
 import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.retry.backoff.FixedBackOffPolicy;
