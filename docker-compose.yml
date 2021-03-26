@@ -36,7 +36,7 @@ services:
       - redis
       - eureka
   pr:
-    image: "s-pr:1.0.2"
+    image: "s-pr:1.0.3"
     ports:
       - "8086:8080"
     env_file:
